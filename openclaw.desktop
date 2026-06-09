@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=OpenClaw (开物)
+Comment=OpenClaw AI Gateway — 配置管理
+Exec=./openclaw
+Icon=./icon.svg
+Path=
+Terminal=false
+Categories=Utility;AI;Network;
+Keywords=openclaw;ai;chat;gateway;
+StartupNotify=true

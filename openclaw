@@ -1,0 +1,290 @@
+#!/usr/bin/env bash
+# OpenClaw (开物) 官方版 — Linux 便携入口
+# 参照 Windows 版结构，即开即用，零安装
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
+# ── Resolve Node.js binary (system node first, then bundled) ──
+node_fallback() {
+    # 1. Look for nvm-managed Node (v22.22.3 / v24.16.0)
+    for nvm_dir in "$HOME/.nvm/versions/node"/*; do
+        local bin="$nvm_dir/bin/node"
+        if [ -x "$bin" ]; then
+            echo "$bin"
+            return
+        fi
+    done
+    # 2. System node (apt/rpm)
+    if command -v node >/dev/null 2>&1; then
+        local sys_ver
+        sys_ver="$(node --version 2>/dev/null | sed 's/^v//' | cut -d. -f1)"
+        if [ -n "$sys_ver" ] && [ "$sys_ver" -ge 22 ] 2>/dev/null; then
+            command -v node
+            return
+        fi
+    fi
+    # 3. Bundled runtime (v22.14 — may be too old, engine will warn)
+    for candidate in "app/runtime/node-linux-x64/bin/node" "app/runtime/node-linux-x64/node"; do
+        if [ -x "$candidate" ]; then
+            echo "$candidate"
+            return
+        fi
+    done
+    echo ""
+}
+
+resolve_node() {
+    local n
+    n="$(node_fallback)"
+    if [ -n "$n" ]; then
+        echo "$n"
+        return
+    fi
+    echo ""
+}
+
+NODE_BIN="$(resolve_node)"
+if [ -z "$NODE_BIN" ]; then
+    echo -e "${C_RED}[ERROR]${C_RESET} Node.js not found. Install Node.js >= 22 or download the full package."
+    exit 1
+fi
+
+ENGINE_DIR="app/core/node_modules/openclaw"
+OPENCLAW_MJS="$ENGINE_DIR/openclaw.mjs"
+DATA_DIR="data/.openclaw"
+CONFIG_FILE="$DATA_DIR/openclaw.json"
+
+# ── Colors ──
+if [ -t 1 ]; then
+    C_GREEN="\033[32m"
+    C_CYAN="\033[36m"
+    C_YELLOW="\033[33m"
+    C_RED="\033[31m"
+    C_BOLD="\033[1m"
+    C_RESET="\033[0m"
+else
+    C_GREEN=""; C_CYAN=""; C_YELLOW=""; C_RED=""; C_BOLD=""; C_RESET=""
+fi
+
+log_info()  { echo -e "${C_CYAN}[INFO]${C_RESET}  $1"; }
+log_ok()    { echo -e "${C_GREEN}[OK]${C_RESET}    $1"; }
+log_warn()  { echo -e "${C_YELLOW}[WARN]${C_RESET}  $1"; }
+log_error() { echo -e "${C_RED}[ERROR]${C_RESET} $1"; }
+
+# ── Preflight ──
+preflight() {
+    if [ ! -f "$OPENCLAW_MJS" ]; then
+        log_error "Engine not found at $OPENCLAW_MJS"
+        log_error "The openclaw package may not be installed correctly."
+        exit 1
+    fi
+
+    if [ ! -f "$CONFIG_FILE" ]; then
+        log_warn "Config file not found. Creating default..."
+        mkdir -p "$DATA_DIR"
+        cat > "$CONFIG_FILE" << 'JSONEOF'
+{
+  "agents": { "defaults": { "model": { "primary": "deepseek/deepseek-chat" } } },
+  "gateway": { "auth": { "mode": "token", "token": "" }, "mode": "local" },
+  "logging": { "level": "info" },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "deepseek": {
+        "api": "openai-completions",
+        "apiKey": "",
+        "baseUrl": "https://api.deepseek.com/v1",
+        "models": [{
+          "contextWindow": 128000,
+          "cost": { "cacheRead": 0, "cacheWrite": 0, "input": 0, "output": 0 },
+          "id": "deepseek-chat",
+          "input": ["text"],
+          "maxTokens": 8192,
+          "name": "deepseek-chat",
+          "reasoning": false
+        }]
+      }
+    }
+  }
+}
+JSONEOF
+        log_warn "Edit $CONFIG_FILE to set your API key. Gateway token auto-generated."
+    fi
+}
+
+# ── Run OpenClaw CLI ──
+run_cli() {
+    preflight
+    export OPENCLAW_NO_AUTO_UPDATE=true
+    export OPENCLAW_HOME="$PWD/$DATA_DIR"
+    export OPENCLAW_STATE_DIR="$PWD/$DATA_DIR/.openclaw"
+    "$NODE_BIN" "$OPENCLAW_MJS" "$@"
+}
+
+# ── Run Web UI ──
+run_webui() {
+    if [ ! -f "webui/server.py" ]; then
+        log_error "Web UI not found (webui/server.py missing)"
+        exit 1
+    fi
+    PORT="${1:-3131}"
+
+    # Auto-start Gateway in background if not already running
+    if ! python3 -c "import socket; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1', 18789)); s.close()" 2>/dev/null; then
+        log_info "自动启动 Gateway..."
+        export OPENCLAW_HOME="$PWD/$DATA_DIR"
+        export OPENCLAW_STATE_DIR="$PWD/$DATA_DIR/.openclaw"
+        nohup env OPENCLAW_NO_AUTO_UPDATE=true OPENCLAW_HOME="$PWD/$DATA_DIR" OPENCLAW_STATE_DIR="$PWD/$DATA_DIR/.openclaw" "$NODE_BIN" "$OPENCLAW_MJS" gateway run > /tmp/openclaw-gateway.log 2>&1 &
+        sleep 3
+    fi
+
+    log_info "Starting Web UI on http://localhost:$PORT"
+    log_info "  Starter:  http://localhost:$PORT/starter"
+    log_info "  Dashboard: http://localhost:$PORT (auto-login)"
+    cd webui && python3 server.py --port "$PORT"
+}
+
+# ── Run GUI launcher ──
+run_gui() {
+    if [ ! -f "launcher.py" ]; then
+        log_error "Launcher not found (launcher.py missing)"
+        exit 1
+    fi
+    exec python3 launcher.py
+}
+
+# ── Open Starter config page in browser ──
+run_starter() {
+    # Check if Web UI is running on port 3131
+    if ! python3 -c "import socket; s=socket.socket(); s.settimeout(1); s.connect(('127.0.0.1', 3131)); s.close()" 2>/dev/null; then
+        log_info "Starting Web UI server..."
+        python3 webui/server.py --port 3131 &
+        sleep 2
+    fi
+    log_ok "Opening config page..."
+    python3 -c "import webbrowser; webbrowser.open('http://localhost:3131/starter')" 2>/dev/null || \
+        xdg-open "http://localhost:3131/starter" 2>/dev/null || \
+        echo "  Open http://localhost:3131/starter in your browser"
+}
+
+# ── Show status ──
+show_status() {
+    echo ""
+    echo -e "${C_BOLD}${C_GREEN}  OpenClaw $(python3 -c "import json; print(json.loads(open('$ENGINE_DIR/package.json').read()).get('version','?'))" 2>/dev/null)${C_RESET}"
+    echo ""
+
+    # Node
+    NODE_VER="$("$NODE_BIN" --version 2>/dev/null || echo "not found")"
+    echo -e "  Node.js:   ${C_CYAN}${NODE_VER}${C_RESET}"
+
+    # Engine
+    echo -e "  Engine:    ${C_GREEN}installed${C_RESET} ($(du -sh "$ENGINE_DIR" 2>/dev/null | cut -f1))"
+
+    # Config
+    if [ -f "$CONFIG_FILE" ]; then
+        HAS_KEY=$(python3 -c "
+import json
+c = json.loads(open('$CONFIG_FILE').read())
+ak = c.get('models',{}).get('providers',{}).get('deepseek',{}).get('apiKey','')
+print('yes' if ak and not ak.startswith('YOUR') else 'no')
+" 2>/dev/null)
+        if [ "$HAS_KEY" = "yes" ]; then
+            echo -e "  API Key:   ${C_GREEN}configured${C_RESET}"
+        else
+            echo -e "  API Key:   ${C_YELLOW}not set${C_RESET}"
+        fi
+    else
+        echo -e "  Config:    ${C_YELLOW}not found${C_RESET}"
+    fi
+
+    # Workspace
+    WS_COUNT=$(find "$DATA_DIR/workspace" -name "*.md" 2>/dev/null | wc -l)
+    echo -e "  Workspace: ${WS_COUNT} files"
+
+    # Skills
+    SKILL_COUNT=$(ls "$ENGINE_DIR/skills" 2>/dev/null | wc -l)
+    echo -e "  Skills:    ${SKILL_COUNT} built-in"
+
+    # Runtime
+    RT_SIZE=$(du -sh app/runtime/node-linux-x64 2>/dev/null | cut -f1 || echo "not bundled")
+    echo -e "  Runtime:   ${RT_SIZE}"
+
+    echo ""
+}
+
+# ============================================================
+# Main
+# ============================================================
+
+case "${1:-}" in
+    help|--help|-h)
+        echo ""
+        echo "OpenClaw $(python3 -c "import json; print(json.loads(open('$ENGINE_DIR/package.json').read()).get('version','?'))" 2>/dev/null)"
+        echo "All your chats, one OpenClaw."
+        echo ""
+        echo "Usage:"
+        echo "  ./openclaw                  Open config page in browser"
+        echo "  ./openclaw config           Open configuration page"
+        echo "  ./openclaw webui [port]     Start Web UI (default port: 3131)"
+        echo "  ./openclaw status           Show system status"
+        echo "  ./openclaw setup            Initialize workspace and config"
+        echo "  ./openclaw onboard          Interactive onboarding"
+        echo "  ./openclaw doctor           Diagnose and fix issues"
+        echo "  ./openclaw gateway run      Start the Gateway"
+        echo "  ./openclaw <cli-command>    Run any OpenClaw CLI command"
+        echo "  ./openclaw help             Show this help"
+        echo ""
+        echo "Examples:"
+        echo "  ./openclaw                  Open config page"
+        echo "  ./openclaw configure        Change model/channel settings"
+        echo "  ./openclaw status           Check everything"
+        echo "  ./openclaw dashboard        Open Control UI in browser"
+        echo "  ./openclaw channels add     Add a chat channel"
+        echo "  ./openclaw skills list      Browse skills"
+        echo ""
+        ;;
+    gui|--gui|-g)
+        run_gui
+        ;;
+    webui|--webui|-w)
+        shift
+        run_webui "${1:-3131}"
+        ;;
+    status|--status|-s)
+        show_status
+        ;;
+    setup|--setup)
+        run_cli setup "$@"
+        ;;
+    onboard)
+        run_cli onboard "$@"
+        ;;
+    doctor)
+        run_cli doctor "$@"
+        ;;
+    dashboard)
+        shift
+        run_cli dashboard "$@"
+        ;;
+    config|--config)
+        run_starter
+        ;;
+    *)
+        # Check if it's a known OpenClaw CLI command
+        case "${1:-}" in
+            gateway|configure|channels|agents|models|skills|cron|sessions|chat|tui|plugins|backup|update|devices|nodes|node|memory|secret|messages|message|logs|health|help|version|--version|-V)
+                run_cli "$@"
+                ;;
+            "")
+                run_starter
+                ;;
+            *)
+                echo "Unknown command: $1"
+                echo "Run './openclaw help' for usage."
+                exit 1
+                ;;
+        esac
+        ;;
+esac

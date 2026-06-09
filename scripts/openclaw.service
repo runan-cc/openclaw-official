@@ -1,0 +1,15 @@
+[Unit]
+Description=OpenClaw (开物) AI Gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=<PROJECT_DIR>
+ExecStart=<PROJECT_DIR>/openclaw gateway run
+Restart=on-failure
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
