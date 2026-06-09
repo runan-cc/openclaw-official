@@ -846,6 +846,17 @@ class Handler(SimpleHTTPRequestHandler):
             }
             cred_file.write_text(json.dumps(cred, indent=2, ensure_ascii=False))
             print(f"[INFO] Saved {channel_id} credential to {cred_file}", file=sys.stderr)
+            # Also update accounts.json index — the weixin plugin uses this to
+            # discover registered accounts. Without this, the channel won't start.
+            index_file = accounts_dir.parent / "accounts.json"
+            try:
+                existing_ids = json.loads(index_file.read_text()) if index_file.exists() else []
+            except (json.JSONDecodeError, FileNotFoundError):
+                existing_ids = []
+            if "default" not in existing_ids:
+                existing_ids.append("default")
+                index_file.write_text(json.dumps(existing_ids, indent=2))
+                print(f"[INFO] Updated {channel_id} accounts index: {existing_ids}", file=sys.stderr)
             # Clean up any old per-user-id credential file from previous bindings
             old_file = accounts_dir / f"{account_id}.json"
             if old_file.exists() and old_file != cred_file:
@@ -887,13 +898,17 @@ class Handler(SimpleHTTPRequestHandler):
         """Remove a channel's credentials and disable its plugin entry."""
         changes = []
 
-        # 1. Remove credential file (WeChat uses file-based storage)
+        # 1. Remove credential file + accounts index (WeChat uses file-based storage)
         if channel_id == "openclaw-weixin":
                 cred_file = ROOT / "data" / ".openclaw" / ".openclaw" / "openclaw-weixin" / "accounts" / "default.json"
+                index_file = ROOT / "data" / ".openclaw" / ".openclaw" / "openclaw-weixin" / "accounts.json"
                 try:
                     if cred_file.exists():
                         cred_file.unlink()
                         changes.append("已删除微信凭证文件")
+                    if index_file.exists():
+                        index_file.unlink()
+                        changes.append("已清除账号索引")
                 except Exception as e:
                     print(f"[WARN] Failed to delete credential file: {e}", file=sys.stderr)
 
