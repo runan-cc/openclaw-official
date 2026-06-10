@@ -704,6 +704,8 @@ class Handler(SimpleHTTPRequestHandler):
                 cfg["channels"][channel_id] = {}
             cfg["channels"][channel_id]["dmPolicy"] = "open"
             cfg["channels"][channel_id]["groupPolicy"] = "open"
+            cfg["channels"][channel_id]["allowFrom"] = ["*"]
+            cfg["channels"][channel_id]["groupAllowFrom"] = ["*"]
             cfg["channels"][channel_id]["accounts"] = {
                 "default": {"appId": app_id, "appSecret": app_secret, "enabled": True}
             }
@@ -737,6 +739,8 @@ class Handler(SimpleHTTPRequestHandler):
                 cfg["channels"][channel_id] = {}
             cfg["channels"][channel_id]["dmPolicy"] = "open"
             cfg["channels"][channel_id]["groupPolicy"] = "open"
+            cfg["channels"][channel_id]["allowFrom"] = ["*"]
+            cfg["channels"][channel_id]["groupAllowFrom"] = ["*"]
             cfg["channels"][channel_id]["accounts"] = {
                 "default": {"clientId": app_id, "clientSecret": app_secret, "enabled": True}
             }
@@ -770,6 +774,8 @@ class Handler(SimpleHTTPRequestHandler):
                 cfg["channels"][channel_id] = {}
             cfg["channels"][channel_id]["dmPolicy"] = "open"
             cfg["channels"][channel_id]["groupPolicy"] = "open"
+            cfg["channels"][channel_id]["allowFrom"] = ["*"]
+            cfg["channels"][channel_id]["groupAllowFrom"] = ["*"]
             cfg["channels"][channel_id]["accounts"] = {
                 "default": {"appId": app_id, "clientSecret": app_secret, "enabled": True}
             }
@@ -895,6 +901,8 @@ class Handler(SimpleHTTPRequestHandler):
             cfg["channels"][channel_id]["enabled"] = True
             cfg["channels"][channel_id]["dmPolicy"] = "open"
             cfg["channels"][channel_id]["groupPolicy"] = "open"
+            cfg["channels"][channel_id]["allowFrom"] = ["*"]
+            cfg["channels"][channel_id]["groupAllowFrom"] = ["*"]
             cfg["channels"][channel_id]["accounts"] = {
                 "default": {"enabled": True}
             }
