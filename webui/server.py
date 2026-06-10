@@ -909,20 +909,18 @@ class Handler(SimpleHTTPRequestHandler):
             p.write_text(json.dumps(cfg, indent=2, ensure_ascii=False))
             print(f"[INFO] Enabled {channel_id} plugin + channel in config", file=sys.stderr)
 
-            # Also create pairing allowFrom file so the paired user can send messages.
+            # Also create pairing allowFrom file so all WeChat users can send messages.
             # The weixin plugin uses hardcoded dmPolicy="pairing" and reads authorized
             # sender IDs from credentials/openclaw-weixin-{accountId}-allowFrom.json.
+            # Using allowFrom=["*"] authorizes ALL WeChat users automatically.
             allow_file = ROOT / "data" / ".openclaw" / ".openclaw" / "credentials" / f"openclaw-weixin-default-allowFrom.json"
             try:
                 allow_file.parent.mkdir(parents=True, exist_ok=True)
-                existing = json.loads(allow_file.read_text()) if allow_file.exists() else {"version": 1, "allowFrom": []}
-            except (json.JSONDecodeError, FileNotFoundError):
-                existing = {"version": 1, "allowFrom": []}
-            existing.setdefault("allowFrom", [])
-            if account_id not in existing["allowFrom"]:
-                existing["allowFrom"].append(account_id)
-                allow_file.write_text(json.dumps(existing, indent=2, ensure_ascii=False))
-                print(f"[INFO] Added {account_id} to weixin allowFrom", file=sys.stderr)
+            except Exception:
+                pass
+            allow_data = {"version": 1, "allowFrom": ["*"]}
+            allow_file.write_text(json.dumps(allow_data, indent=2, ensure_ascii=False))
+            print(f"[INFO] Created weixin allowFrom with wildcard", file=sys.stderr)
         except Exception as e:
             print(f"[ERROR] Failed to enable {channel_id} plugin: {e}", file=sys.stderr)
 
