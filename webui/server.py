@@ -886,6 +886,8 @@ class Handler(SimpleHTTPRequestHandler):
             if channel_id not in cfg["channels"]:
                 cfg["channels"][channel_id] = {}
             cfg["channels"][channel_id]["enabled"] = True
+            cfg["channels"][channel_id]["dmPolicy"] = "open"
+            cfg["channels"][channel_id]["groupPolicy"] = "open"
             cfg["channels"][channel_id]["accounts"] = {
                 "default": {"enabled": True}
             }
