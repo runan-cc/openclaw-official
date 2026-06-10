@@ -36,3 +36,4 @@ Thumbs.db
 openclaw.json
 *.json.bak
 *.json.last-good
+app/runtime/node-linux-x64/bin/node
