@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""OpenClaw Web UI Server — serves original Control UI + Linux Starter with auto-config"""
+"""OpenClaw Web UI Server — serves Control UI + Starter with auto-config"""
 import json
 import os
 import secrets

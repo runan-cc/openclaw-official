@@ -151,8 +151,9 @@ show_status() {
         HAS_KEY=$(python3 -c "
 import json
 c = json.loads(open('$CONFIG_FILE').read())
-ak = c.get('models',{}).get('providers',{}).get('deepseek',{}).get('apiKey','')
-print('yes' if ak and not ak.startswith('YOUR') else 'no')
+providers = c.get('models',{}).get('providers',{})
+has = any(p.get('apiKey','') and not p.get('apiKey','').startswith('YOUR') for p in providers.values())
+print('yes' if has else 'no')
 " 2>/dev/null)
         if [ "$HAS_KEY" = "yes" ]; then
             echo -e "  API Key:   ${C_GREEN}configured${C_RESET}"

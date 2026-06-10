@@ -27,8 +27,8 @@ def test_get_node_binary_bundled(tmp_path: Path) -> None:
     bundled.touch()
     bundled.chmod(0o755)
 
-    # Patch which() to simulate no system node, forcing bundled fallback
-    with patch("shutil.which", return_value=None):
+    # Patch platform.system() to Linux and which() to simulate no system node
+    with patch("shutil.which", return_value=None), patch("platform.system", return_value="Linux"), patch("platform.machine", return_value="x86_64"):
         result = get_node_binary(root)
     assert result == str(bundled)
 

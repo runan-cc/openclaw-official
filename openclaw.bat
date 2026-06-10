@@ -33,7 +33,7 @@ set OPENCLAW_STATE_DIR=%~dp0%DATA_DIR%\.openclaw
 
 if "%1"=="" (
     :: Default: open starter page
-    python "%OPENCLAW_STATE_DIR%\..\..\..\webui\server.py" --port 3131 2>nul
+    python "%~dp0webui\server.py" --port 3131 2>nul
     start http://localhost:3131/starter
     goto :eof
 )
