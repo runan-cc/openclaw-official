@@ -963,7 +963,12 @@ class Handler(SimpleHTTPRequestHandler):
                 ilink_bot_id = data.get("ilink_bot_id")
                 if bot_token and ilink_bot_id:
                     self._save_weixin_credential("openclaw-weixin", ilink_bot_id, bot_token)
-                return {"ok": True, "status": "confirmed", "message": "扫码成功，已保存凭证"}
+                    # Auto-restart Gateway so the channel picks up the new credential immediately
+                    try:
+                        self._restart_gateway()
+                    except Exception:
+                        pass
+                return {"ok": True, "status": "confirmed", "message": "扫码成功，已保存凭证并重启网关"}
             elif status == "expired":
                 return {"ok": True, "status": "expired", "message": "二维码已过期，请刷新重试"}
             elif status == "scaned":
