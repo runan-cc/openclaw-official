@@ -3,197 +3,740 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>OpenClaw 设置向导</title>
+<title>OpenClaw · 开物</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
+<link rel="icon" type="image/svg+xml" href="/icon.svg">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e4e9f0 100%);color:#2d3748;min-height:100vh}
-.container{max-width:900px;margin:0 auto;padding:48px 24px 80px}
-.header-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
-.logo-section h1{font-size:2em;font-weight:800;color:#1a202c;letter-spacing:-.5px}
-.logo-section h1 span{background:linear-gradient(135deg,#e63f52,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.logo-section p{color:#718096;font-size:.9em;margin-top:4px}
-.header-actions{display:flex;gap:8px}
-.status-pill{display:inline-flex;align-items:center;gap:10px;padding:16px 24px;border-radius:16px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 16px rgba(0,0,0,.04);margin-bottom:40px;transition:all .3s ease}
-.status-pill.online{border-left:4px solid #48bb78}
-.status-pill.offline{border-left:4px solid #f56565}
-.status-pill.loading-state{border-left:4px solid #ed8936}
-.status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.status-dot.green{background:#48bb78;box-shadow:0 0 12px rgba(72,187,120,.4)}
-.status-dot.red{background:#f56565}
-.status-dot.orange{background:transparent;border:3px solid #ed8936;border-top-color:transparent;animation:dotSpin 1s linear infinite}
-@keyframes dotSpin{to{transform:rotate(360deg)}}
-.status-label{font-size:1.05em;font-weight:600;color:#2d3748;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.dashboard-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;background:linear-gradient(135deg,#e63f52 0%,#f97316 100%);color:#fff;border-radius:10px;font-size:.9em;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(230,63,82,.3);transition:all .2s}
-.dashboard-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(230,63,82,.4)}
-.secondary-btn{padding:8px 16px;background:rgba(255,255,255,.8);border:1px solid #e2e8f0;border-radius:8px;font-size:.85em;font-weight:500;color:#4a5568;cursor:pointer;transition:all .2s}
-.secondary-btn:hover{background:#fff;border-color:#cbd5e0}
-.section{display:none}.section.active{display:block}
-.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.section-header h2{font-size:1.3em;font-weight:700;color:#1a202c}
-.section-desc{color:#718096;font-size:.9em;margin-bottom:24px}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:32px}
-.feature-card{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,.05);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s ease;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-.feature-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.08);border-color:rgba(230,63,82,.2)}
-.feature-card.selected{border:2px solid #e63f52;box-shadow:0 8px 32px rgba(230,63,82,.15)}
-.card-face{padding:18px}
-.card-face h4{font-size:1.05em;font-weight:700;color:#1a202c;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.card-face p{font-size:.85em;color:#718096;line-height:1.5}
-.badge{font-size:.7em;padding:3px 10px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.badge-hot{background:#fef5f5;color:#e63f52;border:1px solid #fed7d7}
-.badge-free{background:#f0fff4;color:#48bb78;border:1px solid #c6f6d5}
-.badge-fast{background:#faf5ff;color:#9f7aea;border:1px solid #e9d8fd}
-.badge-cheap{background:#fffaf0;color:#dd6b20;border:1px solid #fefcbf}
-.badge-cn{background:#ebf8ff;color:#3182ce;border:1px solid #bee3f8}
-.expand-form{max-height:0;padding:0 18px;opacity:0;overflow:hidden;transition:all .3s ease;background:rgba(248,250,252,.6);border-top:1px solid transparent}
-.feature-card.selected .expand-form{max-height:600px;padding:18px;opacity:1;border-top-color:#e2e8f0}
-.form-row{margin-bottom:14px}
-.form-row label{display:flex;justify-content:space-between;color:#4a5568;margin-bottom:6px;font-size:.85em;font-weight:600}
-.form-row input{width:100%;padding:10px 14px;background:#fff;border:2px solid #e2e8f0;border-radius:10px;color:#2d3748;font-size:.9em;outline:none;transition:border-color .2s}
-.form-row input:focus{border-color:#e63f52;box-shadow:0 0 0 3px rgba(230,63,82,.1)}
-.ext-link{color:#e63f52;text-decoration:none;font-size:.85em;font-weight:600;display:inline-block;margin-bottom:12px}
-.ext-link:hover{text-decoration:underline}
-.action-btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:.9em;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px}
-.action-btn.primary{background:linear-gradient(135deg,#e63f52,#f97316);color:#fff;box-shadow:0 4px 14px rgba(230,63,82,.25)}
-.action-btn.primary:hover{box-shadow:0 6px 20px rgba(230,63,82,.35)}
-.action-btn.secondary{background:#fff;color:#4a5568;border:2px solid #e2e8f0}
-.action-btn.secondary:hover{background:#f7fafc}
-.plugin-status{font-size:.85em;margin-top:8px;display:none}
-.result-block{text-align:center;padding:24px 0}
-.result-block h2{color:#48bb78;font-size:1.6em;margin-bottom:8px}
-.result-block p{color:#718096;font-size:.95em}
-.result-block .url-box{display:inline-block;background:#fff;border:2px solid #e2e8f0;padding:10px 20px;border-radius:10px;color:#e63f52;font-family:monospace;font-size:1.05em;margin:16px 0;font-weight:600}
-.toast{position:fixed;top:24px;right:24px;padding:14px 24px;border-radius:10px;font-size:.9em;opacity:0;transform:translateY(-12px);transition:all .3s;z-index:999;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.12);background:#48bb78;color:#fff}
-.toast.show{opacity:1;transform:translateY(0)}
-.toast.error{background:#f56565}
-.log-panel{margin-top:40px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.05);border-radius:14px;overflow:hidden}
-.log-panel-header{padding:12px 18px;background:rgba(248,250,252,.8);font-size:.9em;font-weight:600;color:#4a5568;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.log-viewer{padding:16px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:.82em;color:#718096;height:200px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;scroll-behavior:smooth;display:none}
-.footer-bar{text-align:center;margin-top:40px;font-size:.85em;color:#a0aec0}
-.footer-bar a{color:#a0aec0;text-decoration:none;cursor:pointer;margin:0 10px}
-.footer-bar a:hover{color:#e63f52}
-.modal-shroud{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
-.modal-shroud.show{opacity:1;pointer-events:auto}
-.modal-box{background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
-.modal-box h3{font-size:1.3em;font-weight:700;margin-bottom:20px;color:#1a202c;text-align:center}
-.modal-box .modal-body{color:#718096;font-size:.9em;line-height:1.7;overflow-y:auto}
-.modal-box .modal-foot{margin-top:24px;text-align:center}
-.configured-dot{background:#f0fff4;color:#48bb78;border:1px solid #c6f6d5;font-size:.7em;padding:3px 10px;border-radius:20px;font-weight:600;margin-left:auto}
-.qr-wrapper{text-align:center;padding:12px 0}
-.qr-wrapper p{font-size:.85em;color:#718096;margin-top:8px}
+/* ══════════════════════════════════════════════
+   Design tokens — supports light / dark
+   ══════════════════════════════════════════════ */
+:root, [data-theme="dark"] {
+  --bg-deep: #08080c;
+  --bg-surface: #111118;
+  --bg-card: #16161e;
+  --bg-card-hover: #1c1c28;
+  --bg-input: #0c0c14;
+  --border-dim: #1e1e2c;
+  --border-active: #e63f52;
+  --text-primary: #f0edf2;
+  --text-secondary: #8b8891;
+  --text-muted: #56535c;
+  --accent: #e63f52;
+  --accent-warm: #f97316;
+  --accent-gradient: linear-gradient(135deg, #e63f52 0%, #f97316 100%);
+  --green: #48bb78;
+  --green-bg: rgba(72,187,120,.1);
+  --yellow: #f59e0b;
+  --red: #f56565;
+  --radial-red: rgba(230,63,82,.04);
+  --radial-orange: rgba(249,115,22,.03);
+  --surface-alpha: rgba(255,255,255,.015);
+  --surface-alpha2: rgba(255,255,255,.02);
+  --surface-alpha4: rgba(255,255,255,.04);
+  --badge-bg-red: rgba(230,63,82,.12);
+  --badge-border-red: rgba(230,63,82,.2);
+  --badge-bg-green: rgba(72,187,120,.1);
+  --badge-border-green: rgba(72,187,120,.15);
+  --badge-bg-purple: rgba(167,139,250,.1);
+  --badge-border-purple: rgba(167,139,250,.15);
+  --badge-bg-yellow: rgba(251,191,36,.1);
+  --badge-border-yellow: rgba(251,191,36,.15);
+  --badge-bg-blue: rgba(96,165,250,.1);
+  --badge-border-blue: rgba(96,165,250,.15);
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.25);
+  --shadow-glow: 0 0 40px rgba(230,63,82,.08);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, SFMono-Regular, monospace;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="light"] {
+  --bg-deep: #f8f9fb;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f5f6f8;
+  --bg-input: #f0f1f5;
+  --border-dim: #e2e4ea;
+  --border-active: #e63f52;
+  --text-primary: #1a1c26;
+  --text-secondary: #5b5d6e;
+  --text-muted: #9a9db0;
+  --accent: #d43a4c;
+  --accent-warm: #e86520;
+  --accent-gradient: linear-gradient(135deg, #e63f52 0%, #f97316 100%);
+  --green: #2ea85a;
+  --green-bg: rgba(46,168,90,.08);
+  --yellow: #c27a0a;
+  --red: #dc3545;
+  --radial-red: rgba(230,63,82,.03);
+  --radial-orange: rgba(249,115,22,.02);
+  --surface-alpha: rgba(0,0,0,.02);
+  --surface-alpha2: rgba(0,0,0,.025);
+  --surface-alpha4: rgba(0,0,0,.04);
+  --badge-bg-red: rgba(230,63,82,.08);
+  --badge-border-red: rgba(230,63,82,.18);
+  --badge-bg-green: rgba(46,168,90,.08);
+  --badge-border-green: rgba(46,168,90,.15);
+  --badge-bg-purple: rgba(139,92,246,.08);
+  --badge-border-purple: rgba(139,92,246,.15);
+  --badge-bg-yellow: rgba(202,138,4,.08);
+  --badge-border-yellow: rgba(202,138,4,.15);
+  --badge-bg-blue: rgba(37,99,235,.08);
+  --badge-border-blue: rgba(37,99,235,.15);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 24px rgba(0,0,0,.08);
+  --shadow-glow: 0 0 40px rgba(230,63,82,.06);
+}
+
+* { margin:0; padding:0; box-sizing:border-box }
+
+html { background: var(--bg-deep) }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══ Ornamental gradient — subtle atmosphere ═══ */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -20%;
+  width: 80%;
+  height: 140%;
+  background: radial-gradient(ellipse at 30% 30%, var(--radial-red) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  top: 20%;
+  right: -30%;
+  width: 70%;
+  height: 80%;
+  background: radial-gradient(ellipse at 60% 50%, var(--radial-orange) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { max-width: 940px; margin: 0 auto; padding: 56px 28px 96px; position: relative; z-index: 1 }
+
+/* ═══ HEADER — editorial ═══ */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+}
+.logo-section h1 {
+  font-size: 2.25em;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+.logo-section h1 span {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.logo-section p {
+  color: var(--text-muted);
+  font-size: .88em;
+  margin-top: 6px;
+  font-weight: 450;
+  letter-spacing: .3px;
+}
+.header-actions { display: flex; gap: 8px; padding-top: 4px }
+
+/* ═══ STATUS PILL — glass morphic ═══ */
+.status-pill-wrap { margin-bottom: 40px }
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  transition: all .3s var(--ease-out);
+  min-height: 52px;
+}
+.status-pill.online {
+  border-color: rgba(72,187,120,.3);
+  box-shadow: 0 0 24px rgba(72,187,120,.06);
+}
+.status-pill.offline {
+  border-color: rgba(245,101,101,.25);
+}
+.status-pill.loading-state {
+  border-color: rgba(245,158,11,.25);
+}
+.status-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.status-dot.green {
+  background: var(--green);
+  box-shadow: 0 0 14px rgba(72,187,120,.5);
+}
+.status-dot.red { background: var(--red) }
+.status-dot.orange {
+  background: transparent;
+  border: 2.5px solid var(--yellow);
+  border-top-color: transparent;
+  animation: dotSpin .8s linear infinite;
+}
+@keyframes dotSpin { to { transform: rotate(360deg) } }
+
+.status-label {
+  font-size: .95em;
+  font-weight: 550;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* ═══ BUTTONS ═══ */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 20px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: .85em; font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all .2s var(--ease-out);
+  box-shadow: 0 2px 12px rgba(230,63,82,.2);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(230,63,82,.3);
+}
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  font-size: .82em; font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all .15s var(--ease-out);
+  font-family: var(--font-sans);
+}
+.btn-ghost:hover {
+  background: var(--bg-card);
+  border-color: #2c2c3c;
+  color: var(--text-primary);
+}
+
+.btn-dashboard {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 20px;
+  background: var(--accent-gradient);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-size: .85em; font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 2px 14px rgba(230,63,82,.18);
+  transition: all .2s var(--ease-out);
+}
+.btn-dashboard:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(230,63,82,.3) }
+
+/* ═══ SECTIONS ═══ */
+.section { display: none }
+.section.active { display: block }
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.section-header h2 {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -.3px;
+}
+.section-desc {
+  color: var(--text-muted);
+  font-size: .88em;
+  margin-bottom: 28px;
+  line-height: 1.6;
+  max-width: 560px;
+}
+
+/* ═══ CARD GRID — bento-inspired ═══ */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+/* ═══ FEATURE CARD ═══ */
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all .25s var(--ease-out);
+  position: relative;
+}
+/* Subtle top-edge glow on hover */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%; height: 1px;
+  background: transparent;
+  transition: all .3s var(--ease-out);
+  z-index: 2;
+}
+.feature-card:hover {
+  background: var(--bg-card-hover);
+  border-color: #2a2a3c;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.feature-card:hover::before {
+  background: linear-gradient(90deg, transparent, rgba(230,63,82,.3), transparent);
+  left: 10%; right: 10%;
+}
+.feature-card.selected {
+  border-color: var(--border-active);
+  box-shadow: var(--shadow-glow);
+}
+.feature-card.selected::before {
+  background: linear-gradient(90deg, transparent, rgba(230,63,82,.4), transparent);
+  left: 5%; right: 5%;
+}
+
+.card-face { padding: 18px 20px }
+.card-face h4 {
+  font-size: .98em;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.card-face p {
+  font-size: .82em;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ═══ BADGES ═══ */
+.badge {
+  font-size: .68em;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+.badge-hot  { background: var(--badge-bg-red);  color: #f87171; border: 1px solid var(--badge-border-red) }
+.badge-free { background: var(--badge-bg-green);   color: #4ade80; border: 1px solid var(--badge-border-green) }
+.badge-fast { background: var(--badge-bg-purple);  color: #a78bfa; border: 1px solid var(--badge-border-purple) }
+.badge-cheap{ background: var(--badge-bg-yellow);   color: #fbbf24; border: 1px solid var(--badge-border-yellow) }
+.badge-cn   { background: var(--badge-bg-blue);   color: #60a5fa; border: 1px solid var(--badge-border-blue) }
+
+.configured-dot {
+  background: rgba(72,187,120,.12);
+  color: var(--green);
+  border: 1px solid rgba(72,187,120,.2);
+  font-size: .68em;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* ═══ EXPAND FORM ═══ */
+.expand-form {
+  max-height: 0;
+  padding: 0 20px;
+  opacity: 0;
+  overflow: hidden;
+  transition: all .35s var(--ease-out);
+  background: var(--surface-alpha);
+  border-top: 1px solid transparent;
+}
+.feature-card.selected .expand-form {
+  max-height: 640px;
+  padding: 18px 20px;
+  opacity: 1;
+  border-top-color: var(--border-dim);
+}
+
+/* ═══ FORM ELEMENTS ═══ */
+.form-row { margin-bottom: 15px }
+.form-row label {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  margin-bottom: 7px;
+  font-size: .82em;
+  font-weight: 550;
+  letter-spacing: .2px;
+}
+.form-row input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-dim);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: .88em;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-row input::placeholder { color: var(--text-muted) }
+.form-row input:focus {
+  border-color: var(--border-active);
+  box-shadow: 0 0 0 3px rgba(230,63,82,.08);
+}
+.ext-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: .82em;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 12px;
+  transition: color .15s;
+}
+.ext-link:hover { color: var(--accent-warm) }
+
+/* ═══ ACTION BUTTONS in forms ═══ */
+.action-btn {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: .88em;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all .2s var(--ease-out);
+  margin-top: 4px;
+  font-family: var(--font-sans);
+}
+.action-btn.primary {
+  background: var(--accent-gradient);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(230,63,82,.18);
+}
+.action-btn.primary:hover { box-shadow: 0 4px 20px rgba(230,63,82,.28) }
+.action-btn.secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-dim);
+}
+.action-btn.secondary:hover { background: var(--bg-card); color: var(--text-primary) }
+
+.plugin-status { font-size: .82em; margin-top: 8px; display: none }
+
+/* ═══ DONE STEP ═══ */
+.result-block { text-align: center; padding: 36px 0 }
+.result-block h2 {
+  color: var(--green);
+  font-size: 1.5em;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.result-block p { color: var(--text-muted); font-size: .9em }
+.result-block .url-box {
+  display: inline-block;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-dim);
+  padding: 10px 22px;
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: .95em;
+  margin: 18px 0;
+  font-weight: 550;
+}
+
+/* ═══ NO GATEWAY STATE ═══ */
+#stepNoGateway h2 { color: var(--text-primary); margin-bottom: 12px }
+#stepNoGateway p { color: var(--text-muted); margin-bottom: 16px }
+#stepNoGateway pre {
+  background: var(--bg-input);
+  color: var(--green);
+  padding: 14px 22px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: .88em;
+  display: inline-block;
+  border: 1px solid var(--border-dim);
+}
+
+/* ═══ LOG PANEL ═══ */
+.log-panel {
+  margin-top: 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.log-panel-header {
+  padding: 11px 18px;
+  background: var(--surface-alpha2);
+  font-size: .85em;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+.log-panel-header:hover { background: var(--surface-alpha4) }
+.log-viewer {
+  padding: 14px 18px;
+  font-family: var(--font-mono);
+  font-size: .78em;
+  color: var(--text-muted);
+  height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  scroll-behavior: smooth;
+  display: none;
+  background: var(--bg-deep);
+  border-top: 1px solid var(--border-dim);
+}
+.log-viewer::-webkit-scrollbar { width: 6px }
+.log-viewer::-webkit-scrollbar-track { background: transparent }
+.log-viewer::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 3px }
+
+/* ═══ FOOTER ═══ */
+.footer-bar {
+  text-align: center;
+  margin-top: 48px;
+  font-size: .82em;
+  color: var(--text-muted);
+}
+.footer-bar a {
+  color: var(--text-muted);
+  text-decoration: none;
+  cursor: pointer;
+  margin: 0 12px;
+  transition: color .15s;
+}
+.footer-bar a:hover { color: var(--accent) }
+
+/* ═══ TOAST ═══ */
+.toast {
+  position: fixed;
+  top: 24px; right: 24px;
+  padding: 13px 22px;
+  border-radius: var(--radius-sm);
+  font-size: .88em;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all .3s var(--ease-out);
+  z-index: 999;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  background: var(--green);
+  color: #fff;
+}
+.toast.show { opacity: 1; transform: translateY(0) }
+.toast.error { background: var(--red) }
+
+/* ═══ MODALS ═══ */
+.modal-shroud {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s var(--ease-out);
+}
+.modal-shroud.show { opacity: 1; pointer-events: auto }
+.modal-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-dim);
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 540px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 32px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.4);
+}
+.modal-box h3 {
+  font-size: 1.15em;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: -.2px;
+}
+.modal-box .modal-body {
+  color: var(--text-secondary);
+  font-size: .88em;
+  line-height: 1.7;
+  overflow-y: auto;
+}
+.modal-box .modal-foot { margin-top: 24px; text-align: center }
+
+/* ═══ QR wrapper ═══ */
+.qr-wrapper { text-align: center; padding: 14px 0 }
+.qr-wrapper p { font-size: .82em; color: var(--text-muted); margin-top: 8px }
+
+/* ═══ Responsive ═══ */
+@media (max-width: 640px) {
+  .container { padding: 36px 16px 64px }
+  .header-bar { flex-direction: column; gap: 16px }
+  .logo-section h1 { font-size: 1.7em }
+  .card-grid { grid-template-columns: 1fr }
+  .status-label { font-size: .85em }
+}
 </style>
 </head>
 <body>
 <div class="container">
 
-<div class="header-bar">
-<div class="logo-section">
-<h1>OpenClaw <span>设置向导</span></h1>
-<p>AI 模型 · 聊天应用 · 零安装</p>
-</div>
-<div class="header-actions">
-<button class="secondary-btn" id="headerUpdateBtn" style="display:none" onclick="openVersionModal()">更新 v??</button>
-<button class="secondary-btn" onclick="openBackupModal()">备份</button>
-<button class="secondary-btn" onclick="runTerminal()">命令行</button>
-</div>
+<!-- ═══ HEADER ═══ -->
+<header class="header-bar">
+  <div class="logo-section">
+    <h1>开物<span>· 设置向导</span></h1>
+    <p>AI 模型接入 · 聊天通道绑定 · 开箱即用</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn-ghost" id="themeToggle" onclick="toggleTheme()" title="切换深浅主题">☀</button>
+    <button class="btn-ghost" id="headerUpdateBtn" style="display:none" onclick="openVersionModal()">更新 v??</button>
+    <button class="btn-ghost" onclick="openTerminalModal()">命令行</button>
+  </div>
+</header>
+
+<!-- ═══ STATUS ═══ -->
+<div class="status-pill-wrap">
+  <div class="status-pill loading-state" id="statusPill">
+    <div class="status-dot orange" id="statusDot"></div>
+    <div class="status-label" id="statusText">检测中…</div>
+  </div>
 </div>
 
-<div class="status-pill loading-state" id="statusPill">
-<div class="status-dot orange" id="statusDot"></div>
-<div class="status-label" id="statusText">检测中...</div>
+<!-- ═══ NO GATEWAY ═══ -->
+<div class="section" id="stepNoGateway" style="display:none;text-align:center;padding:40px 0">
+  <h2>Gateway 未启动</h2>
+  <p>请先启动网关服务</p>
+  <pre>./openclaw gateway run</pre>
+  <button class="action-btn primary" style="display:inline-block;width:auto;margin-top:16px" onclick="startGateway()">自动启动</button>
 </div>
 
-<div class="section" id="stepNoGateway" style="display:none;text-align:center;padding:32px 0">
-<h2 style="color:#2d3748;margin-bottom:12px">Gateway 未启动</h2>
-<p style="color:#718096;margin-bottom:16px">请先启动网关服务</p>
-<pre style="background:#1a202c;color:#48bb78;padding:14px 20px;border-radius:10px;font-size:.9em;display:inline-block">./openclaw gateway run</pre>
-<button class="action-btn primary" style="display:inline-block;width:auto;margin-top:16px" onclick="startGateway()">自动启动</button>
-</div>
-
+<!-- ═══ MODEL SETUP ═══ -->
 <div class="section active" id="stepSetup">
-<div class="section-header">
-<h2>🤖 模型配置</h2>
-<button class="action-btn primary" style="width:auto;padding:8px 16px;font-size:.85em" onclick="skipToChannels()">接入聊天应用 →</button>
-</div>
-<p class="section-desc">选择一个模型并填入 API Key，即可开始使用。也可以在控制台中完成设置。</p>
-<div class="card-grid" id="modelGrid"></div>
+  <div class="section-header">
+    <h2>模型配置</h2>
+    <button class="btn-primary" style="padding:7px 15px;font-size:.82em" onclick="skipToChannels()">接入聊天应用 →</button>
+  </div>
+  <p class="section-desc">选择一个模型并填入 API Key 即可开始使用。也可在 Gateway 控制台中完成设置。</p>
+  <div class="card-grid" id="modelGrid"></div>
 </div>
 
+<!-- ═══ DONE / CHANNELS ═══ -->
 <div class="section" id="stepDone">
-<div class="result-block">
-<div id="saveSuccessMsg">
-<h2>✅ 配置已保存</h2>
-<p>Gateway 启动后即可在浏览器访问 Dashboard 控制台</p>
-<div class="url-box" id="dashboardUrlText">http://127.0.0.1:18789</div>
-</div>
-<div style="margin-top:40px">
-<div class="section-header">
-<h3 style="font-size:1.05em">📡 接入聊天应用</h3>
-<button class="action-btn primary" style="width:auto;padding:8px 16px;font-size:.85em" onclick="document.getElementById('stepDone').classList.remove('active');document.getElementById('stepSetup').classList.add('active')">修改模型配置</button>
-</div>
-<div class="card-grid" id="channelGrid"></div>
-</div>
-</div>
-</div>
-
-<div class="footer-bar">
-<a onclick="showDisclaimer(true)">免责声明</a>
-<a href="http://localhost:3131" target="_blank" rel="noopener">控制台</a>
-<a onclick="showSystemInfo()">系统信息</a>
+  <div class="result-block">
+    <div id="saveSuccessMsg">
+      <h2>配置已保存</h2>
+      <p>Gateway 启动后即可访问 Dashboard 控制台</p>
+      <div class="url-box" id="dashboardUrlText">http://127.0.0.1:18789</div>
+    </div>
+    <div style="margin-top:44px">
+      <div class="section-header">
+        <h3 style="font-size:1em">接入聊天应用</h3>
+        <button class="btn-primary" style="padding:7px 15px;font-size:.82em" onclick="document.getElementById('stepDone').classList.remove('active');document.getElementById('stepSetup').classList.add('active')">修改模型配置</button>
+      </div>
+      <div class="card-grid" id="channelGrid"></div>
+    </div>
+  </div>
 </div>
 
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer-bar">
+  <a onclick="showDisclaimer(true)">免责声明</a>
+  <a href="http://localhost:3131" target="_blank" rel="noopener">控制台</a>
+  <a onclick="showSystemInfo()">系统信息</a>
+</footer>
+
+<!-- ═══ LOG PANEL ═══ -->
 <div class="log-panel" id="logContainer">
-<div class="log-panel-header" onclick="toggleLogs(event)">
-<span><span id="logArrow">▶</span> 实时运行日志</span>
-<div style="display:flex;align-items:center;gap:12px">
-<span style="font-weight:normal;font-size:.8em;color:#a0aec0">自动刷新</span>
-<button class="secondary-btn" style="padding:2px 8px;font-size:.78em" onclick="copyLogs(event)">复制日志</button>
-</div>
-</div>
-<pre class="log-viewer" id="logViewer">正在连接...</pre>
+  <div class="log-panel-header" onclick="toggleLogs(event)">
+    <span><span id="logArrow">▸</span> 实时运行日志</span>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-weight:400;font-size:.8em;color:var(--text-muted)">自动刷新</span>
+      <button class="btn-ghost" style="padding:3px 10px;font-size:.75em" onclick="copyLogs(event)">复制日志</button>
+    </div>
+  </div>
+  <pre class="log-viewer" id="logViewer">正在连接…</pre>
 </div>
 </div>
 
+<!-- ═══ TOAST ═══ -->
 <div class="toast" id="toast"></div>
 
-<!-- Modals -->
+<!-- ═══ MODALS ═══ -->
 <div class="modal-shroud" id="versionModal" onclick="if(event.target===this)this.classList.remove('show')">
-<div class="modal-box">
-<h3>核心版本管理</h3>
-<div class="modal-body" id="versionBody"><p>当前版本: <strong id="currentVersion">检测中...</strong></p><p style="margin-top:8px" id="latestVersionLine" hidden>最新版本: <strong id="latestVersion">-</strong></p><p id="updateStatus" style="margin-top:12px;font-size:.9em"></p></div>
-<div class="modal-foot"><button class="secondary-btn" onclick="document.getElementById('versionModal').classList.remove('show')">关闭</button><button class="action-btn primary" id="updateBtn" style="display:none;margin-left:8px" onclick="doUpdate()">立即更新</button></div>
-</div></div>
-
-<div class="modal-shroud" id="backupModal" onclick="if(event.target===this)this.classList.remove('show')">
-<div class="modal-box"><h3>数据备份与还原</h3><div class="modal-body"><p>使用 openclaw backup 命令管理备份。</p></div><div class="modal-foot"><button class="secondary-btn" onclick="document.getElementById('backupModal').classList.remove('show')">关闭</button></div></div></div>
+  <div class="modal-box">
+    <h3>核心版本管理</h3>
+    <div class="modal-body" id="versionBody"><p>当前版本: <strong id="currentVersion">检测中…</strong></p><p style="margin-top:8px" id="latestVersionLine" hidden>最新版本: <strong id="latestVersion">-</strong></p><p id="updateStatus" style="margin-top:12px;font-size:.9em"></p></div>
+    <div class="modal-foot"><button class="btn-ghost" onclick="document.getElementById('versionModal').classList.remove('show')">关闭</button><button class="action-btn primary" id="updateBtn" style="display:none;margin-left:8px;width:auto" onclick="doUpdate()">立即更新</button></div>
+  </div>
+</div>
 
 <div class="modal-shroud" id="infoModal" onclick="if(event.target===this)this.classList.remove('show')">
-<div class="modal-box"><h3>系统信息</h3><div class="modal-body" id="infoBody">加载中...</div><div class="modal-foot"><button class="secondary-btn" onclick="document.getElementById('infoModal').classList.remove('show')">关闭</button></div></div></div>
+  <div class="modal-box"><h3>系统信息</h3><div class="modal-body" id="infoBody">加载中…</div><div class="modal-foot"><button class="btn-ghost" onclick="document.getElementById('infoModal').classList.remove('show')">关闭</button></div></div>
+</div>
 
 <script>
 
-// Providers config (matches Windows Starter)
+// Providers config
 const PROVIDERS = [
-  {id:"qwen",name:"千问",tag:{text:"推荐新手体验",cls:"cn"},desc:"阿里云送免费千万词元",base:"https://dashscope.aliyuncs.com/compatible-mode/v1",model:"qwen3.6-plus",keyUrl:"https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key"},
+  {id:"qwen",name:"千问",tag:{text:"新手推荐",cls:"cn"},desc:"阿里云送免费千万词元",base:"https://dashscope.aliyuncs.com/compatible-mode/v1",model:"qwen3.6-plus",keyUrl:"https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key"},
   {id:"deepseek",name:"DeepSeek",tag:{text:"便宜",cls:"cheap"},desc:"价格实惠",base:"https://api.deepseek.com/v1",model:"deepseek-chat",keyUrl:"https://platform.deepseek.com/"},
-  {id:"siliconflow",name:"硅基流动",tag:{text:"免费初级模型",cls:"cheap"},desc:"多模型聚合，新手可使用免费模型",base:"https://api.siliconflow.cn/v1",model:"Qwen/Qwen3-8B",keyUrl:"https://cloud.siliconflow.cn/"},
+  {id:"siliconflow",name:"硅基流动",tag:{text:"免费模型",cls:"cheap"},desc:"多模型聚合，新手可使用免费模型",base:"https://api.siliconflow.cn/v1",model:"Qwen/Qwen3-8B",keyUrl:"https://cloud.siliconflow.cn/"},
   {id:"minimax",name:"MiniMax",tag:{text:"推荐",cls:"hot"},desc:"速度快，性价比高",base:"https://api.minimaxi.com/v1",model:"MiniMax-M2.7",keyUrl:"https://platform.minimaxi.com/"},
-  {id:"kimi",name:"Kimi（月之暗面）",tag:{text:"快",cls:"fast"},desc:"擅长超长上下文",base:"https://api.moonshot.cn/v1",model:"kimi-k2.5",keyUrl:"https://platform.moonshot.cn/"},
+  {id:"kimi",name:"Kimi·月之暗面",tag:{text:"快",cls:"fast"},desc:"擅长超长上下文",base:"https://api.moonshot.cn/v1",model:"kimi-k2.5",keyUrl:"https://platform.moonshot.cn/"},
   {id:"zai",name:"智谱 GLM",tag:{text:"好用",cls:"free"},desc:"强工具与Agent能力",base:"https://open.bigmodel.cn/api/paas/v4",model:"glm-5.1",keyUrl:"https://open.bigmodel.cn/"},
-  {id:"doubao",name:"豆包（火山引擎）",tag:{text:"快",cls:"fast"},desc:"字节跳动旗下",base:"https://ark.cn-beijing.volces.com/api/v3",model:"doubao-seed-2-0-pro-260215",keyUrl:"https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey"},
-  {id:"custom",name:"自定义 API",tag:{text:"OpenAI 兼容",cls:"hot"},desc:"填写任意 OpenAI 兼容 API 地址",base:"",model:"",keyUrl:""}
+  {id:"doubao",name:"豆包·火山引擎",tag:{text:"快",cls:"fast"},desc:"字节跳动旗下",base:"https://ark.cn-beijing.volces.com/api/v3",model:"doubao-seed-2-0-pro-260215",keyUrl:"https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey"},
+  {id:"custom",name:"自定义 API",tag:{text:"兼容",cls:"hot"},desc:"填写任意 OpenAI 兼容 API 地址",base:"",model:"",keyUrl:""}
 ];
 
 let config = {};
 let gatewayStatus = null;
 let logInterval = null;
 
-// ── Render model cards ──
 function renderModels() {
   const grid = document.getElementById('modelGrid');
   grid.innerHTML = PROVIDERS.map(p => {
-    const tagHtml = p.tag ? `<span class="tag ${p.tag.cls}">${p.tag.text}</span>` : '';
+    const tagHtml = p.tag ? `<span class="badge badge-${p.tag.cls}">${p.tag.text}</span>` : '';
     return `<div class="feature-card" data-provider="${p.id}" onclick="toggleModel(this)">
       <div class="card-face">
         <h4>${p.name} ${tagHtml}</h4>
@@ -209,85 +752,44 @@ function renderModels() {
   }).join('');
 }
 
-// ── Render channel cards ──
 function renderChannels() {
-  // channelId = openclaw internal channel name (for --channel flag)
-  // npmSpec = npm package to install (for openclaw plugins install)
-  // mode: "qr" = QR scan login, "token" = manual token entry
   const channels = [
-    {channel:"openclaw-weixin", npm:"@tencent-weixin/openclaw-weixin", mode:"qr", name:"💬 微信", desc:"个人微信扫码绑定", tag:"推荐", tagCls:"fast", help:"点击按钮后弹出二维码，用手机微信扫描即可绑定"},
-    {channel:"feishu", npm:"@openclaw/feishu", mode:"feishu", name:"📘 飞书", desc:"飞书/Lark 机器人", tag:"", tagCls:"", help:"前往飞书开发者后台获取 App ID 和 App Secret", keyUrl:"https://open.feishu.cn/app", keyLabel:"飞书开发者后台"},
-    {channel:"dingtalk-connector", npm:"@dingtalk-real-ai/dingtalk-connector", mode:"dingtalk", name:"📱 钉钉", desc:"钉钉官方 AI 机器人", tag:"", tagCls:"", help:"前往钉钉开发者后台获取 App ID 和 App Secret", keyUrl:"https://open-dev.dingtalk.com/fe/app", keyLabel:"钉钉开发者后台"},
-    {channel:"qqbot", npm:"@openclaw/qqbot", mode:"qqbot", name:"🐧 QQ", desc:"QQ 官方机器人", tag:"", tagCls:"", help:"前往 QQ 开放平台获取 App ID 和 App Secret", keyUrl:"https://q.qq.com/qqbot/", keyLabel:"QQ 开放平台"},
+    {channel:"openclaw-weixin", npm:"@tencent-weixin/openclaw-weixin", mode:"qr", name:"微信", desc:"个人微信扫码绑定", tag:"推荐", tagCls:"fast", help:"点击按钮后弹出二维码，用手机微信扫描即可绑定"},
+    {channel:"feishu", npm:"@openclaw/feishu", mode:"feishu", name:"飞书", desc:"飞书 / Lark 机器人", tag:"", tagCls:"", help:"前往飞书开发者后台获取 App ID 和 App Secret", keyUrl:"https://open.feishu.cn/app", keyLabel:"飞书开发者后台"},
+    {channel:"dingtalk-connector", npm:"@dingtalk-real-ai/dingtalk-connector", mode:"dingtalk", name:"钉钉", desc:"钉钉官方 AI 机器人", tag:"", tagCls:"", help:"前往钉钉开发者后台获取 App ID 和 App Secret", keyUrl:"https://open-dev.dingtalk.com/fe/app", keyLabel:"钉钉开发者后台"},
+    {channel:"qqbot", npm:"@openclaw/qqbot", mode:"qqbot", name:"QQ", desc:"QQ 官方机器人", tag:"", tagCls:"", help:"前往 QQ 开放平台获取 App ID 和 App Secret", keyUrl:"https://q.qq.com/qqbot/", keyLabel:"QQ 开放平台"},
   ];
   const grid = document.getElementById('channelGrid');
   grid.innerHTML = channels.map(c => {
-    var tagHtml = c.tag ? '<span class="tag ' + c.tagCls + '" style="margin-left:auto">' + c.tag + '</span>' : '';
+    const tagHtml = c.tag ? `<span class="badge badge-${c.tagCls}" style="margin-left:auto">${c.tag}</span>` : '';
     if (c.mode === 'qr') {
-      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-face">'
-        + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
-        + '<p>' + c.desc + '</p>'
-        + '</div>'
-        + '<div class="expand-form" onclick="event.stopPropagation()">'
-        + '<p style="color:#8b949e;font-size:.85em;margin-bottom:16px;line-height:1.5">' + c.help + '</p>'
-        + '<button class="action-btn primary" onclick="connectChannelQR(\'' + c.channel + "','" + c.npm + "',this)\">扫码登录</button>"
-        + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
-        + '</div></div>';
-    } else if (c.mode === 'feishu') {
-      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-face">'
-        + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
-        + '<p>' + c.desc + '</p>'
-        + '</div>'
-        + '<div class="expand-form" onclick="event.stopPropagation()">'
-        + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px;line-height:1.5">' + c.help + '</p>'
-        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="ext-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
-        + '<div class="form-row"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴飞书的 App ID"></div>'
-        + '<div class="form-row"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴飞书的 App Secret"></div>'
-        + '<button class="action-btn primary" onclick="connectChannelFeishu(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
-        + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
-        + '</div></div>';
-    } else if (c.mode === 'qqbot') {
-      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-face">'
-        + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
-        + '<p>' + c.desc + '</p>'
-        + '</div>'
-        + '<div class="expand-form" onclick="event.stopPropagation()">'
-        + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px;line-height:1.5">' + c.help + '</p>'
-        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="ext-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
-        + '<div class="form-row"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴 QQ 的 App ID"></div>'
-        + '<div class="form-row"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴 QQ 的 App Secret"></div>'
-        + '<button class="action-btn primary" onclick="connectChannelQQ(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
-        + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
-        + '</div></div>';
-    } else if (c.mode === 'dingtalk') {
-      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-face">'
-        + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
-        + '<p>' + c.desc + '</p>'
-        + '</div>'
-        + '<div class="expand-form" onclick="event.stopPropagation()">'
-        + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px;line-height:1.5">' + c.help + '</p>'
-        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="ext-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
-        + '<div class="form-row"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴钉钉的 App ID (AppKey)"></div>'
-        + '<div class="form-row"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴钉钉的 App Secret"></div>'
-        + '<button class="action-btn primary" onclick="connectChannelDingTalk(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
-        + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
-        + '</div></div>';
-    } else {
-      // Generic / unknown mode — fallback link to external docs
-      return '<div class="feature-card channel-card" data-channel="' + c.channel + '">'
-        + '<div class="card-face">'
-        + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
-        + '<p>' + c.desc + '</p>'
-        + '</div>'
-        + '<div class="expand-form" onclick="event.stopPropagation()">'
-        + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px">' + c.help + '</p>'
-        + (c.keyUrl ? '<a class="action-btn primary" href="' + c.keyUrl + '" target="_blank" rel="noopener">→ ' + c.keyLabel + '</a>' : '')
-        + '</div></div>';
+      return `<div class="feature-card channel-card" data-channel="${c.channel}" onclick="toggleChannel(this)">
+        <div class="card-face">
+          <h4 style="display:flex;justify-content:space-between;align-items:center"><span>${c.name}</span>${tagHtml}</h4>
+          <p>${c.desc}</p>
+        </div>
+        <div class="expand-form" onclick="event.stopPropagation()">
+          <p style="color:var(--text-muted);font-size:.82em;margin-bottom:16px;line-height:1.5">${c.help}</p>
+          <button class="action-btn primary" onclick="connectChannelQR('${c.channel}','${c.npm}',this)">扫码登录</button>
+          <div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>
+        </div></div>`;
     }
+    // Feishu, QQ, DingTalk — same pattern
+    const apiFn = c.mode === 'feishu' ? 'connectChannelFeishu' : c.mode === 'qqbot' ? 'connectChannelQQ' : c.mode === 'dingtalk' ? 'connectChannelDingTalk' : '';
+    const idLabel = c.mode === 'dingtalk' ? 'App ID (AppKey)' : 'App ID';
+    return `<div class="feature-card channel-card" data-channel="${c.channel}" onclick="toggleChannel(this)">
+      <div class="card-face">
+        <h4 style="display:flex;justify-content:space-between;align-items:center"><span>${c.name}</span>${tagHtml}</h4>
+        <p>${c.desc}</p>
+      </div>
+      <div class="expand-form" onclick="event.stopPropagation()">
+        <p style="color:var(--text-muted);font-size:.82em;margin-bottom:12px;line-height:1.5">${c.help}</p>
+        ${c.keyUrl ? `<a href="${c.keyUrl}" target="_blank" rel="noopener" class="ext-link" style="display:inline-block;margin-bottom:14px">→ ${c.keyLabel}</a>` : ''}
+        <div class="form-row"><label>${idLabel}</label><input type="text" class="inp-appid" placeholder="粘贴 ${c.name} 的 App ID"></div>
+        <div class="form-row"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴 ${c.name} 的 App Secret"></div>
+        <button class="action-btn primary" onclick="${apiFn}('${c.channel}','${c.npm}',this)">保存并连接</button>
+        <div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>
+      </div></div>`;
   }).join('');
 }
 
@@ -295,12 +797,12 @@ function renderChannels() {
 async function connectChannelQR(channelId, npmSpec, btn) {
   var statusEl = btn.parentElement.querySelector('.plugin-status');
   statusEl.style.display = 'block';
-  statusEl.style.color = '#d29922';
+  statusEl.style.color = '#f59e0b';
   btn.disabled = true;
-  btn.textContent = '检测中...';
+  btn.textContent = '检测中…';
 
   try {
-    statusEl.textContent = '正在获取二维码...';
+    statusEl.textContent = '正在获取二维码…';
     var lr = await fetch('/api/channels/login', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -310,14 +812,13 @@ async function connectChannelQR(channelId, npmSpec, btn) {
 
     if (ld.ok && ld.qrUrl) {
       statusEl.innerHTML = '<div style="text-align:center" id="qr-wrap-' + channelId + '">'
-        + '<p style="color:#3fb950;font-weight:bold;margin-bottom:10px">请用手机扫描二维码</p>'
+        + '<p style="color:#4ade80;font-weight:bold;margin-bottom:10px">请用手机扫描二维码</p>'
         + '<div id="qr-' + channelId + '" style="display:inline-block;background:#fff;padding:8px;border-radius:8px"></div>'
-        + '<p class="qr-status-text" style="color:#8b949e;font-size:.8em;margin-top:6px">扫码后在手机上确认授权</p>'
+        + '<p class="qr-status-text" style="color:var(--text-muted);font-size:.8em;margin-top:8px">扫码后在手机上确认授权</p>'
         + '</div>';
       btn.textContent = '刷新二维码';
       showToast('请扫描二维码');
       setTimeout(function() { renderQR(channelId, ld.qrUrl); }, 200);
-      // Start polling for scan status
       var qrcode = ld.qrcode;
       var pollTimer = setInterval(async function() {
         try {
@@ -326,43 +827,36 @@ async function connectChannelQR(channelId, npmSpec, btn) {
           var statusText = statusEl.querySelector('.qr-status-text');
           if (sd.status === 'confirmed') {
             clearInterval(pollTimer);
-            if (statusText) statusText.style.color = '#3fb950';
-            if (statusText) statusText.textContent = '✅ ' + sd.message;
+            if (statusText) { statusText.style.color = '#4ade80'; statusText.textContent = '✅ ' + sd.message; }
             statusEl.querySelector('#qr-wrap-' + channelId).style.opacity = '0.5';
             btn.textContent = '已完成';
             btn.disabled = false;
             showToast('✅ 微信已绑定成功');
-            // Add unbind button
             var channelCard = btn.closest('.channel-card');
             var header = channelCard.querySelector('.card-face h4');
             if (header && !header.querySelector('.btn-unbind')) {
-              header.insertAdjacentHTML('afterbegin', '<button class="secondary-btn btn-unbind" style="padding:2px 8px;font-size:.75em;margin-right:6px" onclick="event.stopPropagation();unbindChannel(\'openclaw-weixin\',this)">换绑</button>');
+              header.insertAdjacentHTML('afterbegin', '<button class="btn-ghost btn-unbind" style="padding:2px 8px;font-size:.72em;margin-right:6px" onclick="event.stopPropagation();unbindChannel(\'openclaw-weixin\',this)">换绑</button>');
             }
           } else if (sd.status === 'expired') {
             clearInterval(pollTimer);
-            if (statusText) statusText.style.color = '#f85149';
-            if (statusText) statusText.textContent = '二维码已过期，请点击刷新';
+            if (statusText) { statusText.style.color = '#f56565'; statusText.textContent = '二维码已过期，请点击刷新'; }
             btn.textContent = '刷新二维码';
             btn.disabled = false;
           } else if (sd.status === 'scaned' || sd.status === 'scaned_but_redirect') {
-            if (statusText) statusText.style.color = '#d29922';
-            if (statusText) statusText.textContent = '已扫码，请在手机上确认授权...';
-          } else if (sd.status === 'error') {
-            // silently retry on transient errors
+            if (statusText) { statusText.style.color = '#f59e0b'; statusText.textContent = '已扫码，请在手机上确认授权…'; }
           }
         } catch(e) {}
       }, 2000);
-      // Store timer ref so we can clear on re-click
       btn._pollTimer = pollTimer;
     } else if (ld.ok) {
-      statusEl.style.color = '#3fb950';
+      statusEl.style.color = '#4ade80';
       statusEl.textContent = '✅ ' + ld.message;
       btn.textContent = '已完成';
     } else {
       throw new Error(ld.error || '获取二维码失败');
     }
   } catch(e) {
-    statusEl.style.color = '#f85149';
+    statusEl.style.color = '#f56565';
     statusEl.textContent = '❌ ' + (e instanceof Error ? e.message : String(e));
     btn.textContent = '重试';
   } finally { btn.disabled = false; }
@@ -381,14 +875,16 @@ function renderQR(channelId, url) {
   }
   if (!tryIt()) {
     var retries = 0;
-    var timer = setInterval(function() {
-      if (tryIt() || ++retries >= 30) clearInterval(timer);
-    }, 300);
+    var timer = setInterval(function() { if (tryIt() || ++retries >= 30) clearInterval(timer); }, 300);
   }
 }
 
-// ── QQ channel connect (App ID + App Secret) ──
-async function connectChannelQQ(channelId, npmSpec, btn) {
+// ── Channel connect helpers ──
+async function connectChannelQQ(channelId, npmSpec, btn) { channelTokenSetup(channelId, npmSpec, btn, 'qqbot'); }
+async function connectChannelDingTalk(channelId, npmSpec, btn) { channelTokenSetup(channelId, npmSpec, btn, 'dingtalk'); }
+async function connectChannelFeishu(channelId, npmSpec, btn) { channelTokenSetup(channelId, npmSpec, btn, 'feishu'); }
+
+async function channelTokenSetup(channelId, npmSpec, btn, endpoint) {
   var card = btn.closest('.channel-card');
   var statusEl = btn.parentElement.querySelector('.plugin-status');
   var appId = (card.querySelector('.inp-appid') || {}).value || '';
@@ -396,26 +892,26 @@ async function connectChannelQQ(channelId, npmSpec, btn) {
 
   if (!appId || !appSecret) {
     statusEl.style.display = 'block';
-    statusEl.style.color = '#f85149';
+    statusEl.style.color = '#f56565';
     statusEl.textContent = '请填写 App ID 和 App Secret';
     return;
   }
 
   statusEl.style.display = 'block';
-  statusEl.style.color = '#d29922';
+  statusEl.style.color = '#f59e0b';
   btn.disabled = true;
-  btn.textContent = '配置中...';
-  statusEl.textContent = '正在保存...';
+  btn.textContent = '配置中…';
+  statusEl.textContent = '正在保存…';
 
   try {
-    var r = await fetch('/api/channels/qqbot', {
+    var r = await fetch('/api/channels/' + endpoint, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({channel: channelId, npm: npmSpec, appId: appId, appSecret: appSecret})
     });
     var d = await r.json();
     if (d.ok) {
-      statusEl.style.color = '#3fb950';
+      statusEl.style.color = '#4ade80';
       statusEl.textContent = '✅ ' + (d.message || '已保存，重启 Gateway 后生效');
       btn.textContent = '已完成';
       showToast('✅ ' + channelId + ' 已配置');
@@ -423,111 +919,22 @@ async function connectChannelQQ(channelId, npmSpec, btn) {
       throw new Error(d.error || '保存失败');
     }
   } catch(e) {
-    statusEl.style.color = '#f85149';
+    statusEl.style.color = '#f56565';
     statusEl.textContent = '❌ ' + (e instanceof Error ? e.message : String(e));
     btn.textContent = '重试';
     btn.disabled = false;
   }
 }
 
-// ── DingTalk channel connect (App ID + App Secret) ──
-async function connectChannelDingTalk(channelId, npmSpec, btn) {
-  var card = btn.closest('.channel-card');
-  var statusEl = btn.parentElement.querySelector('.plugin-status');
-  var appId = (card.querySelector('.inp-appid') || {}).value || '';
-  var appSecret = (card.querySelector('.inp-appsecret') || {}).value || '';
-
-  if (!appId || !appSecret) {
-    statusEl.style.display = 'block';
-    statusEl.style.color = '#f85149';
-    statusEl.textContent = '请填写 App ID 和 App Secret';
-    return;
-  }
-
-  statusEl.style.display = 'block';
-  statusEl.style.color = '#d29922';
-  btn.disabled = true;
-  btn.textContent = '配置中...';
-  statusEl.textContent = '正在保存...';
-
-  try {
-    var r = await fetch('/api/channels/dingtalk', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({channel: channelId, npm: npmSpec, appId: appId, appSecret: appSecret})
-    });
-    var d = await r.json();
-    if (d.ok) {
-      statusEl.style.color = '#3fb950';
-      statusEl.textContent = '✅ ' + (d.message || '已保存，重启 Gateway 后生效');
-      btn.textContent = '已完成';
-      showToast('✅ ' + channelId + ' 已配置');
-    } else {
-      throw new Error(d.error || '保存失败');
-    }
-  } catch(e) {
-    statusEl.style.color = '#f85149';
-    statusEl.textContent = '❌ ' + (e instanceof Error ? e.message : String(e));
-    btn.textContent = '重试';
-    btn.disabled = false;
-  }
-}
-
-// ── Feishu connect (App ID + App Secret) ──
-async function connectChannelFeishu(channelId, npmSpec, btn) {
-  var card = btn.closest('.channel-card');
-  var statusEl = btn.parentElement.querySelector('.plugin-status');
-  var appId = (card.querySelector('.inp-appid') || {}).value || '';
-  var appSecret = (card.querySelector('.inp-appsecret') || {}).value || '';
-
-  if (!appId || !appSecret) {
-    statusEl.style.display = 'block';
-    statusEl.style.color = '#f85149';
-    statusEl.textContent = '请填写 App ID 和 App Secret';
-    return;
-  }
-
-  statusEl.style.display = 'block';
-  statusEl.style.color = '#d29922';
-  btn.disabled = true;
-  btn.textContent = '配置中...';
-  statusEl.textContent = '正在保存...';
-
-  try {
-    var r = await fetch('/api/channels/feishu', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({channel: channelId, npm: npmSpec, appId: appId, appSecret: appSecret})
-    });
-    var d = await r.json();
-    if (d.ok) {
-      statusEl.style.color = '#3fb950';
-      statusEl.textContent = '✅ ' + (d.message || '已保存，重启 Gateway 后生效');
-      btn.textContent = '已完成';
-      showToast('✅ ' + channelId + ' 已配置');
-    } else {
-      throw new Error(d.error || '保存失败');
-    }
-  } catch(e) {
-    statusEl.style.color = '#f85149';
-    statusEl.textContent = '❌ ' + (e instanceof Error ? e.message : String(e));
-    btn.textContent = '重试';
-    btn.disabled = false;
-  }
-}
-
-// ── Toggle accordion (shared between models and channels) ──
 function toggleModel(el) {
   el.classList.toggle('selected');
-  document.querySelectorAll('.feature-card[data-provider]').forEach(c => {if(c!==el) c.classList.remove('selected')});
+  document.querySelectorAll('.feature-card[data-provider]').forEach(c => { if(c!==el) c.classList.remove('selected') });
 }
 function toggleChannel(el) {
   el.classList.toggle('selected');
-  document.querySelectorAll('.channel-card').forEach(c => {if(c!==el) c.classList.remove('selected')});
+  document.querySelectorAll('.channel-card').forEach(c => { if(c!==el) c.classList.remove('selected') });
 }
 
-
-// ── Save model config ──
 async function saveModelConfig(provider, btn) {
   const card = btn.closest('.feature-card');
   const baseUrl = card.querySelector('.inp-base').value;
@@ -536,15 +943,10 @@ async function saveModelConfig(provider, btn) {
   if(!apiKey) { showToast('请填写 API Key', true); return; }
 
   try {
-    btn.disabled = true; btn.textContent = '保存中...';
-    // Load full existing config first, then merge — avoids data loss
+    btn.disabled = true; btn.textContent = '保存中…';
     let cfg;
-    try {
-      const r = await fetch('/api/config');
-      cfg = await r.json();
-    } catch(e) { cfg = {}; }
+    try { const r = await fetch('/api/config'); cfg = await r.json(); } catch(e) { cfg = {}; }
 
-    // Deep merge: update only the relevant keys, preserve everything else
     if (!cfg.agents) cfg.agents = {};
     if (!cfg.agents.defaults) cfg.agents.defaults = {};
     if (!cfg.agents.defaults.model) cfg.agents.defaults.model = {};
@@ -575,21 +977,19 @@ async function saveModelConfig(provider, btn) {
     document.getElementById('stepDone').classList.add('active');
     loadChannels();
   } catch(e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    showToast('保存失败: ' + msg, true);
+    showToast('保存失败: ' + (e instanceof Error ? e.message : String(e)), true);
   } finally { btn.disabled = false; btn.textContent = '保存并重启'; }
 }
 
-// ── Gateway status check ──
 async function checkGateway() {
   const dot = document.getElementById('statusDot');
   const text = document.getElementById('statusText');
+  const pill = document.getElementById('statusPill');
   try {
     const sr = await fetch('/api/status');
     const data = await sr.json();
     const hasApiKey = data.config && data.config.has_api_key;
 
-    // Check gateway health via our backend proxy (avoids CORS)
     let gwOk = false;
     try {
       const g = await fetch('/api/gateway/health');
@@ -599,86 +999,85 @@ async function checkGateway() {
 
     if (gwOk) {
       dot.className = 'status-dot green';
+      pill.className = 'status-pill online';
       var token = window._gatewayToken || '';
       var url = token ? 'http://localhost:3131/#token=' + encodeURIComponent(token) : 'http://localhost:3131';
       text.innerHTML = '<span>服务已就绪</span>'
-        + ' <a href="' + url + '" target="_blank" class="dashboard-btn">打开控制台</a>'
-        + ' <button class="secondary-btn" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
+        + ' <a href="' + url + '" target="_blank" class="btn-dashboard">打开控制台</a>'
+        + ' <button class="btn-ghost" style="padding:4px 12px;font-size:.78em;margin-left:6px" onclick="restartGateway()">重启网关</button>';
     } else if (!hasApiKey) {
       dot.className = 'status-dot red';
-      text.innerHTML = '请在上方选择一个模型并填写 API Key 后保存';
+      pill.className = 'status-pill offline';
+      text.innerHTML = '请在下方选择一个模型并填写 API Key 后保存';
     } else {
       dot.className = 'status-dot orange';
-      text.innerHTML = 'Gateway 正在启动... <button class="action-btn primary" style="padding:4px 12px;font-size:.85em;margin-left:8px" onclick="startGateway()">点击启动</button>';
+      pill.className = 'status-pill loading-state';
+      text.innerHTML = 'Gateway 正在启动… <button class="btn-primary" style="padding:4px 12px;font-size:.82em;margin-left:8px" onclick="startGateway()">点击启动</button>';
     }
   } catch(e) {
-    // Show the Gateway-not-running section
     document.getElementById('stepSetup').classList.remove('active');
     document.getElementById('stepDone').classList.remove('active');
     document.getElementById('stepNoGateway').style.display = 'block';
     dot.className = 'status-dot red';
-    text.innerHTML = '配置中心连接中...';
+    pill.className = 'status-pill offline';
+    text.innerHTML = '配置中心连接中…';
   }
 }
 
-// ── Start Gateway from browser ──
 async function startGateway() {
-  const text = document.getElementById('statusText');
-  text.innerHTML = '正在启动 Gateway...';
+  var text = document.getElementById('statusText');
+  text.innerHTML = '正在启动 Gateway…';
   try {
-    const r = await fetch('/api/gateway/start', {method:'POST'});
-    const d = await r.json();
+    var r = await fetch('/api/gateway/start', {method:'POST'});
+    var d = await r.json();
     if (d.ok) {
-      text.innerHTML = 'Gateway 正在启动，请稍候...';
-      // Poll until ready
-      for (let i = 0; i < 30; i++) {
-        await new Promise(x => setTimeout(x, 2000));
+      text.innerHTML = 'Gateway 正在启动，请稍候…';
+      for (var i = 0; i < 30; i++) {
+        await new Promise(function(x) { setTimeout(x, 2000); });
         try {
-          const g = await fetch('http://127.0.0.1:18789/health');
+          var g = await fetch('http://127.0.0.1:18789/health');
           if (g.ok) {
             var t2 = window._gatewayToken || '';
             var u2 = t2 ? 'http://localhost:3131/#token=' + encodeURIComponent(t2) : 'http://localhost:3131';
+            document.getElementById('statusDot').className = 'status-dot green';
+            document.getElementById('statusPill').className = 'status-pill online';
             text.innerHTML = '<span>服务已就绪</span>'
-              + ' <a href="' + u2 + '" target="_blank" class="dashboard-btn">打开控制台</a>'
-              + ' <button class="secondary-btn" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
+              + ' <a href="' + u2 + '" target="_blank" class="btn-dashboard">打开控制台</a>'
+              + ' <button class="btn-ghost" style="padding:4px 12px;font-size:.78em;margin-left:6px" onclick="restartGateway()">重启网关</button>';
             return;
           }
-        } catch(e) {}
+        } catch(e2) {}
       }
       text.innerHTML = 'Gateway 启动超时，请运行: ./openclaw gateway run';
     } else {
       text.innerHTML = '启动失败: ' + (d.error || 'unknown');
     }
-  } catch(e) {
-    text.innerHTML = '请求失败，请运行: ./openclaw gateway run';
-  }
+  } catch(e) { text.innerHTML = '请求失败，请运行: ./openclaw gateway run'; }
 }
 
-// ── Stop Gateway ──
 async function stopGateway() {
   var text = document.getElementById('statusText');
   var dot = document.getElementById('statusDot');
+  var pill = document.getElementById('statusPill');
   try {
     var r = await fetch('/api/gateway/stop', {method:'POST'});
     var d = await r.json();
     if (d.ok) {
       dot.className = 'status-dot red';
-      text.innerHTML = 'Gateway 已停止 <button class="action-btn primary" style="padding:4px 12px;font-size:.85em;margin-left:8px" onclick="startGateway()">点击启动</button>';
+      pill.className = 'status-pill offline';
+      text.innerHTML = 'Gateway 已停止 <button class="btn-primary" style="padding:4px 12px;font-size:.82em;margin-left:8px" onclick="startGateway()">点击启动</button>';
       showToast('Gateway 已停止');
-    } else {
-      showToast('停止失败: ' + (d.error || 'unknown'), true);
-    }
-  } catch(e) {
-    showToast('请求失败', true);
-  }
+    } else { showToast('停止失败: ' + (d.error || 'unknown'), true); }
+  } catch(e) { showToast('请求失败', true); }
 }
 
-// ── Restart Gateway ──
 async function restartGateway() {
   var text = document.getElementById('statusText');
   var dot = document.getElementById('statusDot');
+  var pill = document.getElementById('statusPill');
   dot.className = 'status-dot orange';
-  text.innerHTML = 'Gateway 重启中...';
+  pill.className = 'status-pill loading-state';
+  text.innerHTML = 'Gateway 重启中…';
   try {
     var r = await fetch('/api/gateway/restart', {method:'POST'});
     var d = await r.json();
@@ -689,51 +1088,43 @@ async function restartGateway() {
           var g = await fetch('http://127.0.0.1:18789/health');
           if (g.ok) {
             dot.className = 'status-dot green';
+            pill.className = 'status-pill online';
             var token = window._gatewayToken || '';
             var url = token ? 'http://localhost:3131/#token=' + encodeURIComponent(token) : 'http://localhost:3131';
             text.innerHTML = '<span>服务已就绪</span>'
-              + ' <a href="' + url + '" target="_blank" class="dashboard-btn">打开控制台</a>'
-              + ' <button class="secondary-btn" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
+              + ' <a href="' + url + '" target="_blank" class="btn-dashboard">打开控制台</a>'
+              + ' <button class="btn-ghost" style="padding:4px 12px;font-size:.78em;margin-left:6px" onclick="restartGateway()">重启网关</button>';
             showToast('Gateway 重启完成');
             return;
           }
         } catch(e2) {}
       }
       text.innerHTML = 'Gateway 重启超时，请运行: ./openclaw gateway run';
-    } else {
-      text.innerHTML = '重启失败: ' + (d.error || 'unknown');
-    }
-  } catch(e) {
-    text.innerHTML = '请求失败，请运行: ./openclaw gateway run';
-  }
+    } else { text.innerHTML = '重启失败: ' + (d.error || 'unknown'); }
+  } catch(e) { text.innerHTML = '请求失败，请运行: ./openclaw gateway run'; }
 }
 
-// ── Navigation ──
 function skipToChannels() { saveWithoutModel(); }
-async function saveWithoutModel() {
+function saveWithoutModel() {
   document.getElementById('stepSetup').classList.remove('active');
   document.getElementById('stepDone').classList.add('active');
   loadChannels();
 }
 
-// ── Logs ──
 async function fetchLogs() {
   try {
-    const r = await fetch('/api/logs');
-    if(r.ok) {
-      const text = await r.text();
-      document.getElementById('logViewer').textContent = text;
-    }
+    var r = await fetch('/api/logs');
+    if(r.ok) { var t = await r.text(); document.getElementById('logViewer').textContent = t; }
   } catch(e) {}
 }
 
 function toggleLogs(e) {
   if(e.target.closest('button')) return;
-  const v = document.getElementById('logViewer');
-  const arrow = document.getElementById('logArrow');
-  const collapsed = v.style.display === 'none';
-  v.style.display = collapsed ? 'block' : 'none';
-  arrow.textContent = collapsed ? '▼' : '▶';
+  var v = document.getElementById('logViewer');
+  var arrow = document.getElementById('logArrow');
+  var c = v.style.display === 'none';
+  v.style.display = c ? 'block' : 'none';
+  arrow.textContent = c ? '▾' : '▸';
 }
 
 async function copyLogs(e) {
@@ -741,103 +1132,116 @@ async function copyLogs(e) {
   try {
     await navigator.clipboard.writeText(document.getElementById('logViewer').textContent);
     showToast('✅ 日志已复制');
-  } catch(e) { showToast('❌ 复制失败', true); }
+  } catch(e2) { showToast('❌ 复制失败', true); }
 }
 
-// ── Modals ──
 function openVersionModal() {
   document.getElementById('versionModal').classList.add('show');
-  document.getElementById('currentVersion').textContent = '检测中...';
+  document.getElementById('currentVersion').textContent = '检测中…';
   document.getElementById('latestVersionLine').hidden = true;
   document.getElementById('updateBtn').style.display = 'none';
   document.getElementById('updateStatus').textContent = '';
-  fetch('/api/update/check').then(r => r.json()).then(d => {
+  fetch('/api/update/check').then(function(r) { return r.json(); }).then(function(d) {
     document.getElementById('currentVersion').textContent = 'v' + (d.current || '?');
     if (d.ok && d.hasUpdate) {
       document.getElementById('latestVersion').textContent = 'v' + d.latest;
       document.getElementById('latestVersionLine').hidden = false;
-      document.getElementById('updateStatus').innerHTML = '<span style="color:#f0883e">有可用更新：v' + d.latest + ' (正在运行 v' + d.current + ')</span>';
+      document.getElementById('updateStatus').innerHTML = '<span style="color:#f59e0b">有可用更新：v' + d.latest + ' (当前 v' + d.current + ')</span>';
       document.getElementById('updateBtn').style.display = 'inline-block';
     } else if (d.ok) {
-      document.getElementById('updateStatus').innerHTML = '<span style="color:#3fb950">已是最新版本 ✓</span>';
+      document.getElementById('updateStatus').innerHTML = '<span style="color:#4ade80">已是最新版本 ✓</span>';
     } else {
-      document.getElementById('updateStatus').innerHTML = '<span style="color:#f85149">检查更新失败: ' + (d.error || '网络错误') + '</span>';
+      document.getElementById('updateStatus').innerHTML = '<span style="color:#f56565">检查更新失败: ' + (d.error || '网络错误') + '</span>';
     }
-  }).catch(() => {
-    document.getElementById('updateStatus').innerHTML = '<span style="color:#f85149">网络请求失败</span>';
+  }).catch(function() {
+    document.getElementById('updateStatus').innerHTML = '<span style="color:#f56565">网络请求失败</span>';
   });
 }
 function doUpdate() {
   var btn = document.getElementById('updateBtn');
   var st = document.getElementById('updateStatus');
   btn.disabled = true;
-  btn.textContent = '更新中...';
-  st.innerHTML = '<span style="color:#d29922">正在下载并安装更新，请稍候...</span>';
-  fetch('/api/update/run', {method:'POST'}).then(r => r.json()).then(d => {
+  btn.textContent = '更新中…';
+  st.innerHTML = '<span style="color:#f59e0b">正在下载并安装更新…</span>';
+  fetch('/api/update/run', {method:'POST'}).then(function(r) { return r.json(); }).then(function(d) {
     if (d.ok) {
       btn.textContent = '已完成';
-      st.innerHTML = '<span style="color:#3fb950">✓ ' + d.message + '</span>';
+      st.innerHTML = '<span style="color:#4ade80">✓ ' + d.message + '</span>';
     } else {
       btn.disabled = false;
       btn.textContent = '重试';
-      st.innerHTML = '<span style="color:#f85149">更新失败: ' + (d.error || '未知错误') + '</span>';
+      st.innerHTML = '<span style="color:#f56565">更新失败: ' + (d.error || '未知错误') + '</span>';
     }
-  }).catch(() => {
+  }).catch(function() {
     btn.disabled = false;
     btn.textContent = '重试';
-    st.innerHTML = '<span style="color:#f85149">网络请求失败</span>';
+    st.innerHTML = '<span style="color:#f56565">网络请求失败</span>';
   });
 }
-function openBackupModal() { document.getElementById('backupModal').classList.add('show'); }
+function openTerminalModal() {
+  fetch('/api/terminal').then(function(r){return r.json()}).then(function(d){
+    if(d.ok){
+      showToast('✅ 已打开 ' + d.terminal + '，Gateway 启动中…');
+      setTimeout(checkGateway, 3000);
+    } else {
+      showToast('❌ 未找到终端: ' + (d.error || '请手动打开'), true);
+    }
+  }).catch(function(){
+    showToast('❌ 请求失败', true);
+  });
+}
+
 function showDisclaimer() {
-  // Use modal instead of blocking alert()
-  document.getElementById('infoBody').innerHTML = '<p>请使用 openclaw 命令行工具查看完整免责声明。</p>';
+  document.getElementById('infoBody').innerHTML =
+    '<div style="text-align:left">'
+    + '<p style="margin-bottom:12px;font-weight:600;color:var(--text-primary)">使用 OpenClaw（开物）前，请您仔细阅读以下声明：</p>'
+    + '<ol style="padding-left:18px;line-height:2">'
+    + '<li>OpenClaw 是一款<strong>开源工具</strong>，用于聚合和转发 AI 模型 API 请求。使用者应自行确保所接入的第三方服务（AI 模型、聊天平台等）符合其服务条款。</li>'
+    + '<li>本项目<strong>不存储用户对话内容</strong>于第三方服务器。所有数据默认保存在本地设备。使用者应自行保护本地数据安全。</li>'
+    + '<li>使用 AI 模型生成的内容可能存在<strong>错误、偏见或不适宜信息</strong>。使用者应自行判断和核实 AI 输出的准确性，并承担因依赖 AI 输出而产生的风险。</li>'
+    + '<li>本项目<strong>不提供任何明示或暗示的保证</strong>，包括但不限于适用性、可用性、准确性的保证。开发者不对因使用本软件而产生的任何直接或间接损失承担责任。</li>'
+    + '<li>接入聊天平台（微信、飞书、钉钉、QQ 等）时，请<strong>遵守各平台的使用规范</strong>，不得用于发送垃圾信息、诈骗、违法内容等。违规使用导致的封号、法律后果由使用者自行承担。</li>'
+    + '<li>本软件涉及的 AI 模型 API Key 属于<strong>个人敏感信息</strong>，请妥善保管，不要分享给他人或提交到公开仓库。</li>'
+    + '</ol>'
+    + '<p style="margin-top:16px;color:var(--text-muted);font-size:.85em">继续使用本软件即表示您已阅读并同意上述声明。</p>'
+    + '</div>';
   document.getElementById('infoModal').classList.add('show');
 }
 function showSystemInfo() {
-  const body = document.getElementById('infoBody');
-  fetch('/api/status').then(r=>r.json()).then(d=>{
-    body.innerHTML = `<pre style="background:#0d1117;padding:16px;border-radius:6px;font-family:monospace;font-size:.85em;line-height:1.6">
+  var body = document.getElementById('infoBody');
+  fetch('/api/status').then(function(r) { return r.json(); }).then(function(d) {
+    body.innerHTML = `<pre style="background:#0c0c14;padding:16px;border-radius:6px;font-family:var(--font-mono);font-size:.85em;line-height:1.6">
 Node.js:   ${d.node.version}
 Engine:    v${d.engine.version}
 Skills:    ${d.engine.skills}
 API Key:   ${d.config.has_api_key ? '✅ 已配置' : '❌ 未配置'}
 Model:     ${d.config.model}
-Workspace: ${d.workspace.files.length} files
-</pre>`;
-  }).catch(()=>{body.textContent='获取失败'});
+Workspace: ${d.workspace.files.length} files</pre>`;
+  }).catch(function() { body.textContent = '获取失败'; });
   document.getElementById('infoModal').classList.add('show');
 }
 
-function runTerminal() {
-  showToast('请在终端中运行: cd ' + window.location.origin.replace('http://','') + ' && ./openclaw help');
-}
-
-// ── Load config ──
 async function loadConfig() {
   try {
-    const r = await fetch('/api/config');
+    var r = await fetch('/api/config');
     config = await r.json();
-    // Fill in existing values
-    if(config.models?.providers) {
-      Object.keys(config.models.providers).forEach(k => {
-        const p = config.models.providers[k];
-        const card = document.querySelector(`.feature-card[data-provider="${k}"]`);
+    if(config.models && config.models.providers) {
+      Object.keys(config.models.providers).forEach(function(k) {
+        var p = config.models.providers[k];
+        var card = document.querySelector('.feature-card[data-provider="' + k + '"]');
         if(card) {
           if(p.apiKey) card.querySelector('.inp-key').value = p.apiKey;
           if(p.baseUrl) card.querySelector('.inp-base').value = p.baseUrl;
-          if(p.models?.[0]?.id) card.querySelector('.inp-model').value = p.models[0].id;
+          if(p.models && p.models[0] && p.models[0].id) card.querySelector('.inp-model').value = p.models[0].id;
           card.querySelector('.card-face h4').insertAdjacentHTML('beforeend','<span class="configured-dot">已配置</span>');
         }
       });
     }
-    // Update version
-    document.getElementById('currentVersion').textContent = document.querySelector('.version-data')?.textContent || 'v2026.6.1';
+    document.getElementById('currentVersion').textContent = (document.querySelector('.version-data') || {}).textContent || 'v2026.6.1';
   } catch(e) {}
 }
 
 function loadChannels() {
-  // Check which channels are actually configured (plugin enabled + has credentials)
   var configuredChannels = {};
   if (config.plugins && config.plugins.entries) {
     Object.keys(config.plugins.entries).forEach(function(k) {
@@ -847,9 +1251,7 @@ function loadChannels() {
   if (config.channels) {
     Object.keys(config.channels).forEach(function(k) {
       var ch = config.channels[k];
-      if (ch.enabled && ch.accounts && Object.keys(ch.accounts).length > 0) {
-        configuredChannels[k] = true;
-      }
+      if (ch.enabled && ch.accounts && Object.keys(ch.accounts).length > 0) configuredChannels[k] = true;
     });
   }
   document.querySelectorAll('.channel-card').forEach(function(card) {
@@ -861,12 +1263,10 @@ function loadChannels() {
   });
 }
 
-// ── Unbind channel ──
 async function unbindChannel(channelId, btn) {
   if (!confirm('确定要解绑 ' + channelId + ' 吗？此操作会清除已保存的凭证。')) return;
-
   btn.disabled = true;
-  btn.textContent = '解绑中...';
+  btn.textContent = '解绑中…';
   try {
     var r = await fetch('/api/channels/unbind', {
       method: 'POST',
@@ -876,25 +1276,13 @@ async function unbindChannel(channelId, btn) {
     var d = await r.json();
     if (d.ok) {
       showToast('✅ ' + d.message);
-      // Remove the unbind button
       btn.remove();
-      // Reset the connect button to allow re-binding
       var channelCard = btn.closest('.channel-card');
-      var connectBtn = channelCard.querySelector('.btn-primary');
-      if (connectBtn) {
-        connectBtn.textContent = '扫码登录';
-        connectBtn.disabled = false;
-      }
+      var connectBtn = channelCard.querySelector('.action-btn.primary');
+      if (connectBtn) { connectBtn.textContent = '扫码登录'; connectBtn.disabled = false; }
       var statusEl = channelCard.querySelector('.plugin-status');
-      if (statusEl) {
-        statusEl.innerHTML = '';
-        statusEl.style.display = 'none';
-      }
-      // Clear old poll timer
-      if (connectBtn._pollTimer) {
-        clearInterval(connectBtn._pollTimer);
-        connectBtn._pollTimer = null;
-      }
+      if (statusEl) { statusEl.innerHTML = ''; statusEl.style.display = 'none'; }
+      if (connectBtn && connectBtn._pollTimer) { clearInterval(connectBtn._pollTimer); connectBtn._pollTimer = null; }
     } else {
       throw new Error(d.error || '解绑失败');
     }
@@ -903,35 +1291,48 @@ async function unbindChannel(channelId, btn) {
   } finally { btn.disabled = false; btn.textContent = '换绑'; }
 }
 
-// ── Toast ──
 function showToast(msg, isError) {
-  const t = document.getElementById('toast');
+  var t = document.getElementById('toast');
   t.textContent = msg;
   t.className = 'toast show' + (isError ? ' error' : '');
-  setTimeout(() => t.className = 'toast', 3000);
+  setTimeout(function() { t.className = 'toast'; }, 3000);
+}
+
+function loadGatewayToken() {
+  fetch('/api/auto-token').then(function(r) { return r.json(); }).then(function(d) {
+    if(d.token) { window._gatewayToken = d.token; }
+  }).catch(function() {});
+}
+
+// ── Theme toggle ──
+function toggleTheme() {
+  var html = document.documentElement;
+  var current = html.getAttribute('data-theme') || 'dark';
+  var next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  var btn = document.getElementById('themeToggle');
+  btn.textContent = next === 'dark' ? '☀' : '☾';
+  try { localStorage.setItem('openclaw.starter.theme', next); } catch(e) {}
+}
+
+function loadTheme() {
+  var saved;
+  try { saved = localStorage.getItem('openclaw.starter.theme'); } catch(e) {}
+  var theme = saved || 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀' : '☾';
 }
 
 // ── Init ──
 renderModels();
 renderChannels();
+loadTheme();
 loadGatewayToken();
 loadConfig();
-// Delay gateway check to ensure token is loaded first
 setTimeout(function() { checkGateway(); }, 500);
-const gatewayInterval = setInterval(checkGateway, 5000);
+var gatewayInterval = setInterval(checkGateway, 5000);
 logInterval = setInterval(fetchLogs, 2000);
 fetchLogs();
-
-// ── Load gateway token BEFORE rendering status ──
-function loadGatewayToken() {
-  fetch('/api/auto-token').then(r=>r.json()).then(d=>{
-    if(d.token) {
-      window._gatewayToken = d.token;
-    }
-  }).catch(()=>{});
-}
-
-// Cleanup intervals on page unload to prevent memory leaks
 window.addEventListener('beforeunload', function() {
   clearInterval(gatewayInterval);
   clearInterval(logInterval);

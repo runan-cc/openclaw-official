@@ -35,18 +35,18 @@ DEFAULT_BIND = "127.0.0.1"
 ENGINE_MJS = ROOT / "app" / "core" / "node_modules" / "openclaw" / "openclaw.mjs"
 DATA_HOME = ROOT / "data" / ".openclaw"
 NODE = "node"
-# Prefer system node (may be newer than bundled v22.14)
+# Prefer system node (may be newer than bundled), fall back to platform-matched runtime
 system_node = shutil.which("node")
 if system_node:
     NODE = system_node
 else:
-    for p in [ROOT/"app"/"runtime"/"node-linux-x64"/"bin"/"node",
-              ROOT/"app"/"runtime"/"node-linux-x64"/"node"]:
-        if p.exists():
-            NODE = str(p)
-            break
+    try:
+        from lib.common import get_node_binary
+        NODE = get_node_binary(ROOT)
+    except ImportError:
+        NODE = "node"
 LOG_FILE = ROOT / "data" / ".openclaw" / "logs" / "gateway.log"
-GW_REAL_LOG = Path("/tmp/openclaw")  # actual directory where Gateway writes logs
+GW_REAL_LOG = ROOT / "data" / ".openclaw" / ".openclaw" / "logs"  # gateway log directory
 
 # In-memory state for async plugin installs and channel logins
 _plugin_processes: dict[str, subprocess.Popen] = {}
@@ -231,8 +231,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(self._update_check())
         if self.path == "/api/update/run":
             return self._json(self._update_run())
-
-        # Serve Control UI with auto-config injection
+        if self.path == "/api/terminal":
+            return self._json(self._open_terminal())
         if self.path == "/" or self.path == "" or self.path == "/index.html":
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -392,25 +392,26 @@ class Handler(SimpleHTTPRequestHandler):
         if GW_REAL_LOG.exists():
             log_files.extend(sorted(GW_REAL_LOG.glob("openclaw-*.log"), reverse=True))
         for lf in log_files:
-            if lf.exists():
-                try:
-                    raw = lf.read_text(errors="replace")[-5000:]
-                    # Gateway logs are JSONL — extract just the "message" field for readability
-                    lines = []
-                    for line in raw.strip().split("\n"):
-                        try:
-                            obj = json.loads(line)
-                            msg = obj.get("message", "")
-                            ts = obj.get("time", "")[-15:] if "time" in obj else ""
-                            if ts:
-                                lines.append(f"[{ts}] {msg}")
-                            else:
-                                lines.append(msg)
-                        except (json.JSONDecodeError, TypeError):
-                            lines.append(line[:200])
-                    return {"logs": "\n".join(lines) if lines else raw[-5000:]}
-                except (OSError, PermissionError):
-                    continue
+            if not lf.exists():
+                continue
+            try:
+                raw = lf.read_text(errors="replace")[-5000:]
+                # Gateway logs are JSONL — extract just the "message" field for readability
+                lines = []
+                for line in raw.strip().split("\n"):
+                    try:
+                        obj = json.loads(line)
+                        msg = obj.get("message", "")
+                        ts = obj.get("time", "")[-15:] if "time" in obj else ""
+                        if ts:
+                            lines.append(f"[{ts}] {msg}")
+                        else:
+                            lines.append(msg)
+                    except (json.JSONDecodeError, TypeError):
+                        lines.append(line[:200])
+                return {"logs": "\n".join(lines) if lines else raw[-5000:]}
+            except (OSError, PermissionError):
+                continue
         return {"logs": "Gateway 尚未启动或无日志"}
 
     def _save_config(self, cfg: dict) -> None:
@@ -530,7 +531,15 @@ class Handler(SimpleHTTPRequestHandler):
         npm is just a Node.js script — no separate install needed."""
         node_bin = NODE  # already resolved at startup
         candidates = [
+            # Linux
             str(ROOT / "app" / "runtime" / "node-linux-x64" / "lib" / "node_modules" / "npm" / "bin" / "npm-cli.js"),
+            str(ROOT / "app" / "runtime" / "node-linux-arm64" / "lib" / "node_modules" / "npm" / "bin" / "npm-cli.js"),
+            # macOS
+            str(ROOT / "app" / "runtime" / "node-darwin-x64" / "lib" / "node_modules" / "npm" / "bin" / "npm-cli.js"),
+            str(ROOT / "app" / "runtime" / "node-darwin-arm64" / "lib" / "node_modules" / "npm" / "bin" / "npm-cli.js"),
+            # Windows
+            str(ROOT / "app" / "runtime" / "node-win-x64" / "node_modules" / "npm" / "bin" / "npm-cli.js"),
+            str(ROOT / "app" / "runtime" / "node-win-arm64" / "node_modules" / "npm" / "bin" / "npm-cli.js"),
         ]
         for p in candidates:
             if Path(p).exists():
@@ -583,6 +592,70 @@ class Handler(SimpleHTTPRequestHandler):
             return {"ok": False, "error": "更新超时，请手动运行: cd app/core && npm install openclaw@latest"}
         except Exception as e:
             return {"ok": False, "error": str(e)}
+
+    def _open_terminal(self) -> dict:
+        """Detect available terminal emulator and open it at the project root."""
+        import platform
+        import shutil
+
+        system = platform.system()
+
+        if system == "Windows":
+            try:
+                subprocess.Popen(
+                    ["cmd", "/c", "start", "cmd", "/K", f"cd /d {ROOT} && echo *** OpenClaw CLI ***"],
+                    start_new_session=True,
+                )
+                return {"ok": True, "terminal": "cmd.exe"}
+            except (FileNotFoundError, OSError) as e:
+                return {"ok": False, "error": str(e)}
+
+        if system == "Darwin":
+            try:
+                subprocess.Popen(
+                    ["open", "-a", "Terminal", str(ROOT)],
+                    start_new_session=True,
+                )
+                return {"ok": True, "terminal": "Terminal.app"}
+            except (FileNotFoundError, OSError):
+                pass
+            try:
+                subprocess.Popen(
+                    ["osascript", "-e",
+                     f'tell app "Terminal" to do script "cd {ROOT}"'],
+                    start_new_session=True,
+                )
+                return {"ok": True, "terminal": "Terminal.app"}
+            except (FileNotFoundError, OSError) as e:
+                return {"ok": False, "error": str(e)}
+
+        # Linux
+        candidates = [
+            ("ptyxis", ["ptyxis", "--"]),
+            ("gnome-terminal", ["gnome-terminal", "--"]),
+            ("xfce4-terminal", ["xfce4-terminal", "-x"]),
+            ("lxterminal", ["lxterminal", "-e"]),
+            ("konsole", ["konsole", "-e"]),
+            ("tilix", ["tilix", "-e"]),
+            ("terminator", ["terminator", "-e"]),
+            ("x-terminal-emulator", ["x-terminal-emulator", "-x"]),
+            ("xterm", ["xterm", "-e"]),
+            ("urxvt", ["urxvt", "-e"]),
+        ]
+        shell_cmd = f"cd {ROOT} && echo -e '\\033[36m~~~ OpenClaw CLI ~~~\\033[0m'; exec bash"
+        for name, tmpl in candidates:
+            if not shutil.which(name):
+                continue
+            try:
+                env = os.environ.copy()
+                for k in ("DISPLAY", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR", "DBUS_SESSION_BUS_ADDRESS"):
+                    if k in os.environ:
+                        env[k] = os.environ[k]
+                subprocess.Popen(tmpl + ["bash", "-c", shell_cmd], env=env, start_new_session=True)
+                return {"ok": True, "terminal": name}
+            except (FileNotFoundError, OSError):
+                continue
+        return {"ok": False, "error": "No supported terminal found"}
 
     def _install_plugin(self, plugin_id: str) -> dict:
         """Install a plugin via the OpenClaw CLI. Runs asynchronously."""

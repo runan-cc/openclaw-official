@@ -1,0 +1,8 @@
+# Bundle runtime
+node-v*-linux-x64/
+node-v*-darwin-*/
+node-v*-win-*/
+
+# npm download manifest (if any)
+.npmrc
+package-lock.json
