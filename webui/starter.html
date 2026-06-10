@@ -3,181 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>OpenClaw 快捷设置</title>
+<title>OpenClaw 设置向导</title>
 <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#13151a;color:#8b949e;min-height:100vh;margin:0}
-.container{max-width:860px;margin:0 auto;padding:40px 20px 60px}
-h1{text-align:left;font-size:1.8em;margin-bottom:8px;color:#e6e8ea;font-weight:600;letter-spacing:.5px}
-.status-bar{background:#1c1e26;border:1px solid #2d3139;border-radius:12px;padding:42px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;text-align:center}
-.dot{width:24px;height:24px;border-radius:50%;flex-shrink:0}
-.dot.on{background:#3fb950;animation:dynamicPulse 1.2s infinite alternate}
-.dot.off{background:#f85149}
-.dot.loading{background:transparent;border:4px solid rgba(210,153,34,.2);border-top-color:#d29922;border-bottom-color:#d29922;border-radius:50%;width:28px;height:28px;animation:dynamicSpin .8s ease-in-out infinite}
-@keyframes dynamicPulse{0%{transform:scale(.85);box-shadow:0 0 10px rgba(63,185,80,.6)}100%{transform:scale(1.15);box-shadow:0 0 25px rgba(63,185,80,1),0 0 45px rgba(63,185,80,.4)}}
-@keyframes dynamicSpin{0%{transform:rotate(0deg) scale(1)}50%{transform:rotate(180deg) scale(1.15)}100%{transform:rotate(360deg) scale(1)}}
-.status-text{font-size:1.35em;font-weight:600;color:#c9d1d9;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
-.status-btn{background:linear-gradient(135deg,#e63f52 0%,#ff4c61 100%);color:#fff!important;padding:12px 28px;border-radius:8px;font-size:.85em;font-weight:bold;text-decoration:none;box-shadow:0 4px 15px rgba(230,63,82,.4);display:inline-flex;align-items:center;gap:6px}
-.status-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(230,63,82,.6)}
-.section{display:none;animation:fadeIn .3s ease}.section.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-.section h2{color:#e6e8ea;font-size:1.2em;margin-bottom:6px;font-weight:500}
-.section .desc{color:#6e7681;font-size:.9em;margin-bottom:20px}
-.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.model-card{background:#1c1e26;border:1px solid #2d3139;border-radius:8px;overflow:hidden;cursor:pointer;transition:all .2s ease}
-.model-card:hover{border-color:#484f58}
-.model-card.selected{border-color:#e63f52;background:#1e1b20}
-.card-header{padding:16px}
-.card-header h4{color:#e6e8ea;font-size:1.05em;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.card-header p{color:#8b949e;font-size:.85em;line-height:1.4}
-.tag{font-size:.7em;padding:2px 8px;border-radius:4px;font-weight:500}
-.tag.hot{background:rgba(230,63,82,.15);color:#e63f52;border:1px solid rgba(230,63,82,.3)}
-.tag.free{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid rgba(63,185,80,.3)}
-.tag.cn{background:rgba(88,166,255,.15);color:#58a6ff;border:1px solid rgba(88,166,255,.3)}
-.tag.fast{background:rgba(188,140,255,.15);color:#bc8cff;border:1px solid rgba(188,140,255,.3)}
-.tag.cheap{background:rgba(210,153,34,.15);color:#d29922;border:1px solid rgba(210,153,34,.3)}
-.model-form,.channel-form{max-height:0;padding:0 16px;opacity:0;transition:all .3s ease;background:#16181d;border-top:1px solid transparent;cursor:default;overflow:hidden}
-.model-card.selected .model-form,.channel-card.selected .channel-form{max-height:530px;padding:16px;opacity:1;border-top-color:#2d3139}
-.form-group{margin-bottom:12px}
-.form-group label{display:flex;justify-content:space-between;color:#8b949e;margin-bottom:8px;font-size:.85em}
-.form-group input{width:100%;padding:10px 12px;background:#0d1117;border:1px solid #30363d;border-radius:6px;color:#e6e8ea;font-size:.9em;outline:none;box-sizing:border-box}
-.form-group input:focus{border-color:#e63f52;box-shadow:0 0 0 1px #e63f52}
-.buy-link{color:#58a6ff;text-decoration:none;font-size:.9em}
-.buy-link:hover{text-decoration:underline}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 20px;border:none;border-radius:6px;font-size:.9em;cursor:pointer;font-weight:500;transition:all .2s}
-.btn-primary{background:#e63f52;color:#fff}
-.btn-primary:hover{background:#ff4c61;box-shadow:0 0 10px rgba(230,63,82,.3)}
-.btn-secondary{background:#21262d;color:#c9d1d9;border:1px solid #30363d}
-.btn-secondary:hover{background:#30363d;border-color:#8b949e}
-.btn-danger{background:rgba(248,81,73,.1);color:#f85149;border:1px solid rgba(248,81,73,.4)}
-.btn-danger:hover{background:#f85149;color:#fff;box-shadow:0 0 15px rgba(248,81,73,.4)}
-.btn-block{width:100%;margin-top:8px}
-.result{text-align:left;padding:20px 0}
-.result h2{color:#3fb950;margin-bottom:8px;font-size:1.5em}
-.result p{color:#8b949e;font-size:.95em;line-height:1.6}
-.result .url{display:inline-block;background:#1c1e26;border:1px solid #2d3139;padding:8px 16px;border-radius:6px;color:#58a6ff;font-family:monospace;font-size:1.05em;margin:16px 0}
-.toast{position:fixed;top:24px;right:24px;background:#238636;color:#fff;padding:12px 24px;border-radius:6px;font-size:.9em;opacity:0;transform:translateY(-10px);transition:all .3s;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:linear-gradient(135deg,#f5f7fa 0%,#e4e9f0 100%);color:#2d3748;min-height:100vh}
+.container{max-width:900px;margin:0 auto;padding:48px 24px 80px}
+.header-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.logo-section h1{font-size:2em;font-weight:800;color:#1a202c;letter-spacing:-.5px}
+.logo-section h1 span{background:linear-gradient(135deg,#e63f52,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-section p{color:#718096;font-size:.9em;margin-top:4px}
+.header-actions{display:flex;gap:8px}
+.status-pill{display:inline-flex;align-items:center;gap:10px;padding:16px 24px;border-radius:16px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 16px rgba(0,0,0,.04);margin-bottom:40px;transition:all .3s ease}
+.status-pill.online{border-left:4px solid #48bb78}
+.status-pill.offline{border-left:4px solid #f56565}
+.status-pill.loading-state{border-left:4px solid #ed8936}
+.status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.status-dot.green{background:#48bb78;box-shadow:0 0 12px rgba(72,187,120,.4)}
+.status-dot.red{background:#f56565}
+.status-dot.orange{background:transparent;border:3px solid #ed8936;border-top-color:transparent;animation:dotSpin 1s linear infinite}
+@keyframes dotSpin{to{transform:rotate(360deg)}}
+.status-label{font-size:1.05em;font-weight:600;color:#2d3748;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.dashboard-btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;background:linear-gradient(135deg,#e63f52 0%,#f97316 100%);color:#fff;border-radius:10px;font-size:.9em;font-weight:600;text-decoration:none;box-shadow:0 4px 16px rgba(230,63,82,.3);transition:all .2s}
+.dashboard-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(230,63,82,.4)}
+.secondary-btn{padding:8px 16px;background:rgba(255,255,255,.8);border:1px solid #e2e8f0;border-radius:8px;font-size:.85em;font-weight:500;color:#4a5568;cursor:pointer;transition:all .2s}
+.secondary-btn:hover{background:#fff;border-color:#cbd5e0}
+.section{display:none}.section.active{display:block}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.section-header h2{font-size:1.3em;font-weight:700;color:#1a202c}
+.section-desc{color:#718096;font-size:.9em;margin-bottom:24px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:32px}
+.feature-card{background:rgba(255,255,255,.88);backdrop-filter:blur(8px);border:1px solid rgba(0,0,0,.05);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s ease;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.feature-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.08);border-color:rgba(230,63,82,.2)}
+.feature-card.selected{border:2px solid #e63f52;box-shadow:0 8px 32px rgba(230,63,82,.15)}
+.card-face{padding:18px}
+.card-face h4{font-size:1.05em;font-weight:700;color:#1a202c;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-face p{font-size:.85em;color:#718096;line-height:1.5}
+.badge{font-size:.7em;padding:3px 10px;border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.badge-hot{background:#fef5f5;color:#e63f52;border:1px solid #fed7d7}
+.badge-free{background:#f0fff4;color:#48bb78;border:1px solid #c6f6d5}
+.badge-fast{background:#faf5ff;color:#9f7aea;border:1px solid #e9d8fd}
+.badge-cheap{background:#fffaf0;color:#dd6b20;border:1px solid #fefcbf}
+.badge-cn{background:#ebf8ff;color:#3182ce;border:1px solid #bee3f8}
+.expand-form{max-height:0;padding:0 18px;opacity:0;overflow:hidden;transition:all .3s ease;background:rgba(248,250,252,.6);border-top:1px solid transparent}
+.feature-card.selected .expand-form{max-height:600px;padding:18px;opacity:1;border-top-color:#e2e8f0}
+.form-row{margin-bottom:14px}
+.form-row label{display:flex;justify-content:space-between;color:#4a5568;margin-bottom:6px;font-size:.85em;font-weight:600}
+.form-row input{width:100%;padding:10px 14px;background:#fff;border:2px solid #e2e8f0;border-radius:10px;color:#2d3748;font-size:.9em;outline:none;transition:border-color .2s}
+.form-row input:focus{border-color:#e63f52;box-shadow:0 0 0 3px rgba(230,63,82,.1)}
+.ext-link{color:#e63f52;text-decoration:none;font-size:.85em;font-weight:600;display:inline-block;margin-bottom:12px}
+.ext-link:hover{text-decoration:underline}
+.action-btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:.9em;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px}
+.action-btn.primary{background:linear-gradient(135deg,#e63f52,#f97316);color:#fff;box-shadow:0 4px 14px rgba(230,63,82,.25)}
+.action-btn.primary:hover{box-shadow:0 6px 20px rgba(230,63,82,.35)}
+.action-btn.secondary{background:#fff;color:#4a5568;border:2px solid #e2e8f0}
+.action-btn.secondary:hover{background:#f7fafc}
+.plugin-status{font-size:.85em;margin-top:8px;display:none}
+.result-block{text-align:center;padding:24px 0}
+.result-block h2{color:#48bb78;font-size:1.6em;margin-bottom:8px}
+.result-block p{color:#718096;font-size:.95em}
+.result-block .url-box{display:inline-block;background:#fff;border:2px solid #e2e8f0;padding:10px 20px;border-radius:10px;color:#e63f52;font-family:monospace;font-size:1.05em;margin:16px 0;font-weight:600}
+.toast{position:fixed;top:24px;right:24px;padding:14px 24px;border-radius:10px;font-size:.9em;opacity:0;transform:translateY(-12px);transition:all .3s;z-index:999;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.12);background:#48bb78;color:#fff}
 .toast.show{opacity:1;transform:translateY(0)}
-.toast.error{background:#da3633}
-.log-container{margin-top:30px;background:#0d1117;border:1px solid #30363d;border-radius:8px;overflow:hidden}
-.log-header{background:#16181d;padding:10px 16px;font-size:.9em;color:#c9d1d9;border-bottom:1px solid #30363d;font-weight:500;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
-#logViewer{margin:0;padding:16px;font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:.85em;color:#8b949e;height:200px;overflow-y:auto;white-space:pre-wrap;word-wrap:break-word;line-height:1.5;scroll-behavior:smooth}
-#logViewer::-webkit-scrollbar{width:8px}
-#logViewer::-webkit-scrollbar-track{background:#0d1117}
-#logViewer::-webkit-scrollbar-thumb{background:#30363d;border-radius:4px}
-#logViewer::-webkit-scrollbar-thumb:hover{background:#484f58}
-.footer-link{text-align:center;margin-top:40px;font-size:.85em}
-.footer-link a{color:#6e7681;text-decoration:none;cursor:pointer}
-.footer-link a:hover{color:#c9d1d9;text-decoration:underline}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
-.modal-overlay.show{opacity:1;pointer-events:auto}
-.modal-content{background:#1c1e26;border:1px solid #30363d;border-radius:12px;width:90%;max-width:600px;max-height:85vh;display:flex;flex-direction:column;padding:30px;transform:translateY(-20px);transition:transform .3s ease;box-shadow:0 10px 30px rgba(0,0,0,.5)}
-.modal-overlay.show .modal-content{transform:translateY(0)}
-.modal-title{font-size:1.4em;color:#e6e8ea;margin-bottom:20px;text-align:center;font-weight:600}
-.modal-body{color:#8b949e;font-size:.9em;line-height:1.7;overflow-y:auto;padding-right:8px}
-.modal-footer{margin-top:24px;text-align:center}
-.model-configured{background:rgba(63,185,80,.15);color:#3fb950;border:1px solid rgba(63,185,80,.3);font-size:.7em;padding:2px 8px;border-radius:4px;margin-left:auto}
+.toast.error{background:#f56565}
+.log-panel{margin-top:40px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.05);border-radius:14px;overflow:hidden}
+.log-panel-header{padding:12px 18px;background:rgba(248,250,252,.8);font-size:.9em;font-weight:600;color:#4a5568;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.log-viewer{padding:16px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:.82em;color:#718096;height:200px;overflow-y:auto;white-space:pre-wrap;line-height:1.5;scroll-behavior:smooth;display:none}
+.footer-bar{text-align:center;margin-top:40px;font-size:.85em;color:#a0aec0}
+.footer-bar a{color:#a0aec0;text-decoration:none;cursor:pointer;margin:0 10px}
+.footer-bar a:hover{color:#e63f52}
+.modal-shroud{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.4);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-shroud.show{opacity:1;pointer-events:auto}
+.modal-box{background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;padding:32px;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.modal-box h3{font-size:1.3em;font-weight:700;margin-bottom:20px;color:#1a202c;text-align:center}
+.modal-box .modal-body{color:#718096;font-size:.9em;line-height:1.7;overflow-y:auto}
+.modal-box .modal-foot{margin-top:24px;text-align:center}
+.configured-dot{background:#f0fff4;color:#48bb78;border:1px solid #c6f6d5;font-size:.7em;padding:3px 10px;border-radius:20px;font-weight:600;margin-left:auto}
+.qr-wrapper{text-align:center;padding:12px 0}
+.qr-wrapper p{font-size:.85em;color:#718096;margin-top:8px}
 </style>
 </head>
 <body>
 <div class="container">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-<h1 style="margin-bottom:0">OpenClaw 快捷设置</h1>
-<div style="display:flex;gap:8px">
-<button class="btn btn-secondary" id="headerUpdateBtn" style="padding:6px 12px;font-size:.85em;display:none" onclick="openVersionModal()">更新 v??</button>
-<button class="btn btn-secondary" style="padding:6px 12px;font-size:.85em" onclick="openBackupModal()">备份</button>
-<button class="btn btn-secondary" style="padding:6px 12px;font-size:.85em" onclick="runTerminal()">命令行</button>
+
+<div class="header-bar">
+<div class="logo-section">
+<h1>OpenClaw <span>设置向导</span></h1>
+<p>AI 模型 · 聊天应用 · 零安装</p>
+</div>
+<div class="header-actions">
+<button class="secondary-btn" id="headerUpdateBtn" style="display:none" onclick="openVersionModal()">更新 v??</button>
+<button class="secondary-btn" onclick="openBackupModal()">备份</button>
+<button class="secondary-btn" onclick="runTerminal()">命令行</button>
 </div>
 </div>
 
-<div class="status-bar">
-<div class="dot" id="statusDot"></div>
-<div class="status-text" id="statusText">检测中...</div>
+<div class="status-pill loading-state" id="statusPill">
+<div class="status-dot orange" id="statusDot"></div>
+<div class="status-label" id="statusText">检测中...</div>
 </div>
 
-<div class="section" id="stepNoGateway" style="display:none;text-align:center;padding:20px">
-<h2 style="color:#e6e8ea">Gateway 未启动</h2>
-<p style="color:#8b949e;margin-top:12px">请在终端运行：</p>
-<pre style="background:#0d1117;border:1px solid #30363d;padding:12px;border-radius:6px;color:#58a6ff;font-size:.9em;display:inline-block;text-align:left">./openclaw gateway run</pre>
-<button class="btn btn-primary" style="margin-top:16px;display:block;margin-left:auto;margin-right:auto" onclick="startGateway()">或点击此处自动启动</button>
+<div class="section" id="stepNoGateway" style="display:none;text-align:center;padding:32px 0">
+<h2 style="color:#2d3748;margin-bottom:12px">Gateway 未启动</h2>
+<p style="color:#718096;margin-bottom:16px">请先启动网关服务</p>
+<pre style="background:#1a202c;color:#48bb78;padding:14px 20px;border-radius:10px;font-size:.9em;display:inline-block">./openclaw gateway run</pre>
+<button class="action-btn primary" style="display:inline-block;width:auto;margin-top:16px" onclick="startGateway()">自动启动</button>
 </div>
 
 <div class="section active" id="stepSetup">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-<h2 style="margin-bottom:0">模型配置</h2>
-<button class="btn btn-primary" style="padding:5px 12px;font-size:.85em" onclick="skipToChannels()">接入聊天应用 &rarr;</button>
+<div class="section-header">
+<h2>🤖 模型配置</h2>
+<button class="action-btn primary" style="width:auto;padding:8px 16px;font-size:.85em" onclick="skipToChannels()">接入聊天应用 →</button>
 </div>
-<p class="desc">未设置模型将无法与agent对话。此处提供常用模型快捷设置，您也可以进入控制台或通过命令行设置。</p>
-<div class="model-grid" id="modelGrid"></div>
+<p class="section-desc">选择一个模型并填入 API Key，即可开始使用。也可以在控制台中完成设置。</p>
+<div class="card-grid" id="modelGrid"></div>
 </div>
 
 <div class="section" id="stepDone">
-<div class="result">
+<div class="result-block">
 <div id="saveSuccessMsg">
-<h2>配置已保存</h2>
-<p>Gateway 启动后即可在浏览器访问 Dashboard 控制台。</p>
-<div class="url" id="dashboardUrlText">http://127.0.0.1:18789</div>
+<h2>✅ 配置已保存</h2>
+<p>Gateway 启动后即可在浏览器访问 Dashboard 控制台</p>
+<div class="url-box" id="dashboardUrlText">http://127.0.0.1:18789</div>
 </div>
-<div style="margin-top:32px">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-<h3 style="color:#e6e8ea;font-size:1.1em;margin-bottom:0;font-weight:500">接入聊天应用</h3>
-<button class="btn btn-primary" style="padding:5px 12px;font-size:.85em" onclick="document.getElementById('stepDone').classList.remove('active');document.getElementById('stepSetup').classList.add('active')">修改模型配置</button>
+<div style="margin-top:40px">
+<div class="section-header">
+<h3 style="font-size:1.05em">📡 接入聊天应用</h3>
+<button class="action-btn primary" style="width:auto;padding:8px 16px;font-size:.85em" onclick="document.getElementById('stepDone').classList.remove('active');document.getElementById('stepSetup').classList.add('active')">修改模型配置</button>
 </div>
-<div class="model-grid" id="channelGrid"></div>
+<div class="card-grid" id="channelGrid"></div>
 </div>
 </div>
 </div>
 
-<div class="footer-link">
+<div class="footer-bar">
 <a onclick="showDisclaimer(true)">免责声明</a>
-<span style="margin:0 10px;color:#30363d">|</span>
-<a href="http://localhost:3131" target="_blank" rel="noopener noreferrer">控制台</a>
-<span style="margin:0 10px;color:#30363d">|</span>
+<a href="http://localhost:3131" target="_blank" rel="noopener">控制台</a>
 <a onclick="showSystemInfo()">系统信息</a>
 </div>
 
-<div class="log-container" id="logContainer">
-<div class="log-header" onclick="toggleLogs(event)">
-<span><span id="logArrow" style="margin-right:6px">▶</span>实时运行日志</span>
+<div class="log-panel" id="logContainer">
+<div class="log-panel-header" onclick="toggleLogs(event)">
+<span><span id="logArrow">▶</span> 实时运行日志</span>
 <div style="display:flex;align-items:center;gap:12px">
-<span style="font-size:.85em;font-weight:normal;color:#6e7681">自动刷新</span>
-<button class="btn btn-secondary" style="padding:2px 8px;font-size:.8em" onclick="copyLogs(event)">复制日志</button>
+<span style="font-weight:normal;font-size:.8em;color:#a0aec0">自动刷新</span>
+<button class="secondary-btn" style="padding:2px 8px;font-size:.78em" onclick="copyLogs(event)">复制日志</button>
 </div>
 </div>
-<pre id="logViewer">正在连接...</pre>
+<pre class="log-viewer" id="logViewer">正在连接...</pre>
 </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<div class="modal-overlay" id="versionModal" onclick="if(event.target===this)this.classList.remove('show')">
-<div class="modal-content"><div class="modal-title">核心版本管理</div>
-<div class="modal-body" id="versionBody">
-<p>当前版本: <strong id="currentVersion">检测中...</strong></p>
-<p style="margin-top:8px" id="latestVersionLine" hidden>最新版本: <strong id="latestVersion">-</strong></p>
-<p id="updateStatus" style="margin-top:12px;font-size:.9em"></p>
-</div>
-<div class="modal-footer">
-<button class="btn btn-secondary" onclick="document.getElementById('versionModal').classList.remove('show')">关闭</button>
-<button class="btn btn-primary" id="updateBtn" style="display:none" onclick="doUpdate()">立即更新</button>
-</div>
+<!-- Modals -->
+<div class="modal-shroud" id="versionModal" onclick="if(event.target===this)this.classList.remove('show')">
+<div class="modal-box">
+<h3>核心版本管理</h3>
+<div class="modal-body" id="versionBody"><p>当前版本: <strong id="currentVersion">检测中...</strong></p><p style="margin-top:8px" id="latestVersionLine" hidden>最新版本: <strong id="latestVersion">-</strong></p><p id="updateStatus" style="margin-top:12px;font-size:.9em"></p></div>
+<div class="modal-foot"><button class="secondary-btn" onclick="document.getElementById('versionModal').classList.remove('show')">关闭</button><button class="action-btn primary" id="updateBtn" style="display:none;margin-left:8px" onclick="doUpdate()">立即更新</button></div>
 </div></div>
 
-<div class="modal-overlay" id="backupModal" onclick="if(event.target===this)this.classList.remove('show')">
-<div class="modal-content"><div class="modal-title">数据备份与还原</div>
-<div class="modal-body">
-<p>使用 openclaw backup 命令管理备份。</p>
-</div>
-<div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('backupModal').classList.remove('show')">关闭</button></div>
-</div></div>
+<div class="modal-shroud" id="backupModal" onclick="if(event.target===this)this.classList.remove('show')">
+<div class="modal-box"><h3>数据备份与还原</h3><div class="modal-body"><p>使用 openclaw backup 命令管理备份。</p></div><div class="modal-foot"><button class="secondary-btn" onclick="document.getElementById('backupModal').classList.remove('show')">关闭</button></div></div></div>
 
-<div class="modal-overlay" id="infoModal" onclick="if(event.target===this)this.classList.remove('show')">
-<div class="modal-content"><div class="modal-title">系统信息</div>
-<div class="modal-body" id="infoBody">加载中...</div>
-<div class="modal-footer"><button class="btn btn-secondary" onclick="document.getElementById('infoModal').classList.remove('show')">关闭</button></div>
-</div></div>
+<div class="modal-shroud" id="infoModal" onclick="if(event.target===this)this.classList.remove('show')">
+<div class="modal-box"><h3>系统信息</h3><div class="modal-body" id="infoBody">加载中...</div><div class="modal-foot"><button class="secondary-btn" onclick="document.getElementById('infoModal').classList.remove('show')">关闭</button></div></div></div>
 
 <script>
+
 // Providers config (matches Windows Starter)
 const PROVIDERS = [
   {id:"qwen",name:"千问",tag:{text:"推荐新手体验",cls:"cn"},desc:"阿里云送免费千万词元",base:"https://dashscope.aliyuncs.com/compatible-mode/v1",model:"qwen3.6-plus",keyUrl:"https://bailian.console.aliyun.com/cn-beijing?tab=model#/api-key"},
@@ -199,16 +193,16 @@ function renderModels() {
   const grid = document.getElementById('modelGrid');
   grid.innerHTML = PROVIDERS.map(p => {
     const tagHtml = p.tag ? `<span class="tag ${p.tag.cls}">${p.tag.text}</span>` : '';
-    return `<div class="model-card" data-provider="${p.id}" onclick="toggleModel(this)">
-      <div class="card-header">
+    return `<div class="feature-card" data-provider="${p.id}" onclick="toggleModel(this)">
+      <div class="card-face">
         <h4>${p.name} ${tagHtml}</h4>
         <p>${p.desc}</p>
       </div>
-      <div class="model-form" onclick="event.stopPropagation()">
-        <div class="form-group"><label>API 地址</label><input type="text" class="inp-base" value="${p.base}"></div>
-        <div class="form-group"><label>模型名称</label><input type="text" class="inp-model" value="${p.model}"></div>
-        <div class="form-group"><label>API Key${p.keyUrl ? ` <a class="buy-link" href="${p.keyUrl}" target="_blank">获取 Key ↗</a>` : ''}</label><input type="password" class="inp-key" placeholder="填入 API Key"></div>
-        <button class="btn btn-primary btn-block" onclick="saveModelConfig('${p.id}', this)">保存并重启</button>
+      <div class="expand-form" onclick="event.stopPropagation()">
+        <div class="form-row"><label>API 地址</label><input type="text" class="inp-base" value="${p.base}"></div>
+        <div class="form-row"><label>模型名称</label><input type="text" class="inp-model" value="${p.model}"></div>
+        <div class="form-row"><label>API Key${p.keyUrl ? ` <a class="ext-link" href="${p.keyUrl}" target="_blank">获取 Key ↗</a>` : ''}</label><input type="password" class="inp-key" placeholder="填入 API Key"></div>
+        <button class="action-btn primary" onclick="saveModelConfig('${p.id}', this)">保存并重启</button>
       </div>
     </div>`;
   }).join('');
@@ -229,68 +223,68 @@ function renderChannels() {
   grid.innerHTML = channels.map(c => {
     var tagHtml = c.tag ? '<span class="tag ' + c.tagCls + '" style="margin-left:auto">' + c.tag + '</span>' : '';
     if (c.mode === 'qr') {
-      return '<div class="model-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-header">'
+      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
+        + '<div class="card-face">'
         + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
         + '<p>' + c.desc + '</p>'
         + '</div>'
-        + '<div class="channel-form" onclick="event.stopPropagation()">'
+        + '<div class="expand-form" onclick="event.stopPropagation()">'
         + '<p style="color:#8b949e;font-size:.85em;margin-bottom:16px;line-height:1.5">' + c.help + '</p>'
-        + '<button class="btn btn-primary btn-block" onclick="connectChannelQR(\'' + c.channel + "','" + c.npm + "',this)\">扫码登录</button>"
+        + '<button class="action-btn primary" onclick="connectChannelQR(\'' + c.channel + "','" + c.npm + "',this)\">扫码登录</button>"
         + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
         + '</div></div>';
     } else if (c.mode === 'feishu') {
-      return '<div class="model-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-header">'
+      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
+        + '<div class="card-face">'
         + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
         + '<p>' + c.desc + '</p>'
         + '</div>'
-        + '<div class="channel-form" onclick="event.stopPropagation()">'
+        + '<div class="expand-form" onclick="event.stopPropagation()">'
         + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px;line-height:1.5">' + c.help + '</p>'
-        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="buy-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
-        + '<div class="form-group"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴飞书的 App ID"></div>'
-        + '<div class="form-group"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴飞书的 App Secret"></div>'
-        + '<button class="btn btn-primary btn-block" onclick="connectChannelFeishu(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
+        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="ext-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
+        + '<div class="form-row"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴飞书的 App ID"></div>'
+        + '<div class="form-row"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴飞书的 App Secret"></div>'
+        + '<button class="action-btn primary" onclick="connectChannelFeishu(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
         + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
         + '</div></div>';
     } else if (c.mode === 'qqbot') {
-      return '<div class="model-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-header">'
+      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
+        + '<div class="card-face">'
         + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
         + '<p>' + c.desc + '</p>'
         + '</div>'
-        + '<div class="channel-form" onclick="event.stopPropagation()">'
+        + '<div class="expand-form" onclick="event.stopPropagation()">'
         + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px;line-height:1.5">' + c.help + '</p>'
-        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="buy-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
-        + '<div class="form-group"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴 QQ 的 App ID"></div>'
-        + '<div class="form-group"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴 QQ 的 App Secret"></div>'
-        + '<button class="btn btn-primary btn-block" onclick="connectChannelQQ(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
+        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="ext-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
+        + '<div class="form-row"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴 QQ 的 App ID"></div>'
+        + '<div class="form-row"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴 QQ 的 App Secret"></div>'
+        + '<button class="action-btn primary" onclick="connectChannelQQ(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
         + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
         + '</div></div>';
     } else if (c.mode === 'dingtalk') {
-      return '<div class="model-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
-        + '<div class="card-header">'
+      return '<div class="feature-card channel-card" data-channel="' + c.channel + '" onclick="toggleChannel(this)">'
+        + '<div class="card-face">'
         + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
         + '<p>' + c.desc + '</p>'
         + '</div>'
-        + '<div class="channel-form" onclick="event.stopPropagation()">'
+        + '<div class="expand-form" onclick="event.stopPropagation()">'
         + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px;line-height:1.5">' + c.help + '</p>'
-        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="buy-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
-        + '<div class="form-group"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴钉钉的 App ID (AppKey)"></div>'
-        + '<div class="form-group"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴钉钉的 App Secret"></div>'
-        + '<button class="btn btn-primary btn-block" onclick="connectChannelDingTalk(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
+        + (c.keyUrl ? '<a href="' + c.keyUrl + '" target="_blank" rel="noopener" class="ext-link" style="display:inline-block;margin-bottom:12px">→ ' + c.keyLabel + '</a>' : '')
+        + '<div class="form-row"><label>App ID</label><input type="text" class="inp-appid" placeholder="粘贴钉钉的 App ID (AppKey)"></div>'
+        + '<div class="form-row"><label>App Secret</label><input type="password" class="inp-appsecret" placeholder="粘贴钉钉的 App Secret"></div>'
+        + '<button class="action-btn primary" onclick="connectChannelDingTalk(\'' + c.channel + "','" + c.npm + "',this)\">保存并连接</button>"
         + '<div class="plugin-status" style="margin-top:8px;font-size:.85em;display:none"></div>'
         + '</div></div>';
     } else {
       // Generic / unknown mode — fallback link to external docs
-      return '<div class="model-card channel-card" data-channel="' + c.channel + '">'
-        + '<div class="card-header">'
+      return '<div class="feature-card channel-card" data-channel="' + c.channel + '">'
+        + '<div class="card-face">'
         + '<h4 style="display:flex;justify-content:space-between;align-items:center"><span>' + c.name + '</span>' + tagHtml + '</h4>'
         + '<p>' + c.desc + '</p>'
         + '</div>'
-        + '<div class="channel-form" onclick="event.stopPropagation()">'
+        + '<div class="expand-form" onclick="event.stopPropagation()">'
         + '<p style="color:#8b949e;font-size:.85em;margin-bottom:12px">' + c.help + '</p>'
-        + (c.keyUrl ? '<a class="btn btn-primary btn-block" href="' + c.keyUrl + '" target="_blank" rel="noopener">→ ' + c.keyLabel + '</a>' : '')
+        + (c.keyUrl ? '<a class="action-btn primary" href="' + c.keyUrl + '" target="_blank" rel="noopener">→ ' + c.keyLabel + '</a>' : '')
         + '</div></div>';
     }
   }).join('');
@@ -339,9 +333,9 @@ async function connectChannelQR(channelId, npmSpec, btn) {
             showToast('✅ 微信已绑定成功');
             // Add unbind button
             var channelCard = btn.closest('.channel-card');
-            var header = channelCard.querySelector('.card-header h4');
+            var header = channelCard.querySelector('.card-face h4');
             if (header && !header.querySelector('.btn-unbind')) {
-              header.insertAdjacentHTML('afterbegin', '<button class="btn btn-danger btn-unbind" style="padding:2px 8px;font-size:.75em;margin-right:6px" onclick="event.stopPropagation();unbindChannel(\'openclaw-weixin\',this)">换绑</button>');
+              header.insertAdjacentHTML('afterbegin', '<button class="secondary-btn btn-unbind" style="padding:2px 8px;font-size:.75em;margin-right:6px" onclick="event.stopPropagation();unbindChannel(\'openclaw-weixin\',this)">换绑</button>');
             }
           } else if (sd.status === 'expired') {
             clearInterval(pollTimer);
@@ -524,7 +518,7 @@ async function connectChannelFeishu(channelId, npmSpec, btn) {
 // ── Toggle accordion (shared between models and channels) ──
 function toggleModel(el) {
   el.classList.toggle('selected');
-  document.querySelectorAll('.model-card[data-provider]').forEach(c => {if(c!==el) c.classList.remove('selected')});
+  document.querySelectorAll('.feature-card[data-provider]').forEach(c => {if(c!==el) c.classList.remove('selected')});
 }
 function toggleChannel(el) {
   el.classList.toggle('selected');
@@ -534,7 +528,7 @@ function toggleChannel(el) {
 
 // ── Save model config ──
 async function saveModelConfig(provider, btn) {
-  const card = btn.closest('.model-card');
+  const card = btn.closest('.feature-card');
   const baseUrl = card.querySelector('.inp-base').value;
   const model = card.querySelector('.inp-model').value;
   const apiKey = card.querySelector('.inp-key').value;
@@ -575,7 +569,7 @@ async function saveModelConfig(provider, btn) {
     await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)});
     config = cfg;
     showToast('配置已保存');
-    card.querySelector('.card-header h4').insertAdjacentHTML('beforeend','<span class="model-configured">已配置</span>');
+    card.querySelector('.card-face h4').insertAdjacentHTML('beforeend','<span class="configured-dot">已配置</span>');
     document.getElementById('stepSetup').classList.remove('active');
     document.getElementById('stepDone').classList.add('active');
     loadChannels();
@@ -603,25 +597,25 @@ async function checkGateway() {
     } catch(e) {}
 
     if (gwOk) {
-      dot.className = 'dot on';
+      dot.className = 'status-dot green';
       var token = window._gatewayToken || '';
       var url = token ? 'http://localhost:3131/#token=' + encodeURIComponent(token) : 'http://localhost:3131';
       text.innerHTML = '<span>服务已就绪</span>'
-        + ' <a href="' + url + '" target="_blank" class="status-btn">打开控制台</a>'
-        + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
+        + ' <a href="' + url + '" target="_blank" class="dashboard-btn">打开控制台</a>'
+        + ' <button class="secondary-btn" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
     } else if (!hasApiKey) {
-      dot.className = 'dot off';
+      dot.className = 'status-dot red';
       text.innerHTML = '请在上方选择一个模型并填写 API Key 后保存';
     } else {
-      dot.className = 'dot loading';
-      text.innerHTML = 'Gateway 正在启动... <button class="btn btn-primary" style="padding:4px 12px;font-size:.85em;margin-left:8px" onclick="startGateway()">点击启动</button>';
+      dot.className = 'status-dot orange';
+      text.innerHTML = 'Gateway 正在启动... <button class="action-btn primary" style="padding:4px 12px;font-size:.85em;margin-left:8px" onclick="startGateway()">点击启动</button>';
     }
   } catch(e) {
     // Show the Gateway-not-running section
     document.getElementById('stepSetup').classList.remove('active');
     document.getElementById('stepDone').classList.remove('active');
     document.getElementById('stepNoGateway').style.display = 'block';
-    dot.className = 'dot off';
+    dot.className = 'status-dot red';
     text.innerHTML = '配置中心连接中...';
   }
 }
@@ -644,8 +638,8 @@ async function startGateway() {
             var t2 = window._gatewayToken || '';
             var u2 = t2 ? 'http://localhost:3131/#token=' + encodeURIComponent(t2) : 'http://localhost:3131';
             text.innerHTML = '<span>服务已就绪</span>'
-              + ' <a href="' + u2 + '" target="_blank" class="status-btn">打开控制台</a>'
-              + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
+              + ' <a href="' + u2 + '" target="_blank" class="dashboard-btn">打开控制台</a>'
+              + ' <button class="secondary-btn" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
             return;
           }
         } catch(e) {}
@@ -667,8 +661,8 @@ async function stopGateway() {
     var r = await fetch('/api/gateway/stop', {method:'POST'});
     var d = await r.json();
     if (d.ok) {
-      dot.className = 'dot off';
-      text.innerHTML = 'Gateway 已停止 <button class="btn btn-primary" style="padding:4px 12px;font-size:.85em;margin-left:8px" onclick="startGateway()">点击启动</button>';
+      dot.className = 'status-dot red';
+      text.innerHTML = 'Gateway 已停止 <button class="action-btn primary" style="padding:4px 12px;font-size:.85em;margin-left:8px" onclick="startGateway()">点击启动</button>';
       showToast('Gateway 已停止');
     } else {
       showToast('停止失败: ' + (d.error || 'unknown'), true);
@@ -682,7 +676,7 @@ async function stopGateway() {
 async function restartGateway() {
   var text = document.getElementById('statusText');
   var dot = document.getElementById('statusDot');
-  dot.className = 'dot loading';
+  dot.className = 'status-dot orange';
   text.innerHTML = 'Gateway 重启中...';
   try {
     var r = await fetch('/api/gateway/restart', {method:'POST'});
@@ -693,12 +687,12 @@ async function restartGateway() {
         try {
           var g = await fetch('http://127.0.0.1:18789/health');
           if (g.ok) {
-            dot.className = 'dot on';
+            dot.className = 'status-dot green';
             var token = window._gatewayToken || '';
             var url = token ? 'http://localhost:3131/#token=' + encodeURIComponent(token) : 'http://localhost:3131';
             text.innerHTML = '<span>服务已就绪</span>'
-              + ' <a href="' + url + '" target="_blank" class="status-btn">打开控制台</a>'
-              + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
+              + ' <a href="' + url + '" target="_blank" class="dashboard-btn">打开控制台</a>'
+              + ' <button class="secondary-btn" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
             showToast('Gateway 重启完成');
             return;
           }
@@ -827,12 +821,12 @@ async function loadConfig() {
     if(config.models?.providers) {
       Object.keys(config.models.providers).forEach(k => {
         const p = config.models.providers[k];
-        const card = document.querySelector(`.model-card[data-provider="${k}"]`);
+        const card = document.querySelector(`.feature-card[data-provider="${k}"]`);
         if(card) {
           if(p.apiKey) card.querySelector('.inp-key').value = p.apiKey;
           if(p.baseUrl) card.querySelector('.inp-base').value = p.baseUrl;
           if(p.models?.[0]?.id) card.querySelector('.inp-model').value = p.models[0].id;
-          card.querySelector('.card-header h4').insertAdjacentHTML('beforeend','<span class="model-configured">已配置</span>');
+          card.querySelector('.card-face h4').insertAdjacentHTML('beforeend','<span class="configured-dot">已配置</span>');
         }
       });
     }
@@ -861,7 +855,7 @@ function loadChannels() {
     var ch = card.dataset.channel;
     var found = Object.keys(configuredChannels).some(function(k) { return k.includes(ch); });
     if (found) {
-      card.querySelector('.card-header h4 span').insertAdjacentHTML('afterend','<span class="tag free" style="margin-left:auto">已配置</span>');
+      card.querySelector('.card-face h4 span').insertAdjacentHTML('afterend','<span class="configured-dot" style="margin-left:auto">已配置</span>');
     }
   });
 }
@@ -941,6 +935,7 @@ window.addEventListener('beforeunload', function() {
   clearInterval(gatewayInterval);
   clearInterval(logInterval);
 });
+
 </script>
 </body>
 </html>
