@@ -608,7 +608,7 @@ async function checkGateway() {
       var url = token ? 'http://localhost:3131/#token=' + encodeURIComponent(token) : 'http://localhost:3131';
       text.innerHTML = '<span>服务已就绪</span>'
         + ' <a href="' + url + '" target="_blank" class="status-btn">打开控制台</a>'
-        + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="stopGateway()">停止</button>';
+        + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
     } else if (!hasApiKey) {
       dot.className = 'dot off';
       text.innerHTML = '请在上方选择一个模型并填写 API Key 后保存';
@@ -645,7 +645,7 @@ async function startGateway() {
             var u2 = t2 ? 'http://localhost:3131/#token=' + encodeURIComponent(t2) : 'http://localhost:3131';
             text.innerHTML = '<span>服务已就绪</span>'
               + ' <a href="' + u2 + '" target="_blank" class="status-btn">打开控制台</a>'
-              + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="stopGateway()">停止</button>';
+              + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
             return;
           }
         } catch(e) {}
@@ -653,6 +653,60 @@ async function startGateway() {
       text.innerHTML = 'Gateway 启动超时，请运行: ./openclaw gateway run';
     } else {
       text.innerHTML = '启动失败: ' + (d.error || 'unknown');
+    }
+  } catch(e) {
+    text.innerHTML = '请求失败，请运行: ./openclaw gateway run';
+  }
+}
+
+// ── Stop Gateway ──
+async function stopGateway() {
+  var text = document.getElementById('statusText');
+  var dot = document.getElementById('statusDot');
+  try {
+    var r = await fetch('/api/gateway/stop', {method:'POST'});
+    var d = await r.json();
+    if (d.ok) {
+      dot.className = 'dot off';
+      text.innerHTML = 'Gateway 已停止 <button class="btn btn-primary" style="padding:4px 12px;font-size:.85em;margin-left:8px" onclick="startGateway()">点击启动</button>';
+      showToast('Gateway 已停止');
+    } else {
+      showToast('停止失败: ' + (d.error || 'unknown'), true);
+    }
+  } catch(e) {
+    showToast('请求失败', true);
+  }
+}
+
+// ── Restart Gateway ──
+async function restartGateway() {
+  var text = document.getElementById('statusText');
+  var dot = document.getElementById('statusDot');
+  dot.className = 'dot loading';
+  text.innerHTML = 'Gateway 重启中...';
+  try {
+    var r = await fetch('/api/gateway/restart', {method:'POST'});
+    var d = await r.json();
+    if (d.ok) {
+      for (var i = 0; i < 30; i++) {
+        await new Promise(function(x) { setTimeout(x, 2000); });
+        try {
+          var g = await fetch('http://127.0.0.1:18789/health');
+          if (g.ok) {
+            dot.className = 'dot on';
+            var token = window._gatewayToken || '';
+            var url = token ? 'http://localhost:3131/#token=' + encodeURIComponent(token) : 'http://localhost:3131';
+            text.innerHTML = '<span>服务已就绪</span>'
+              + ' <a href="' + url + '" target="_blank" class="status-btn">打开控制台</a>'
+              + ' <button class="btn btn-secondary" style="padding:4px 12px;font-size:.8em;margin-left:4px" onclick="restartGateway()">重启网关</button>';
+            showToast('Gateway 重启完成');
+            return;
+          }
+        } catch(e2) {}
+      }
+      text.innerHTML = 'Gateway 重启超时，请运行: ./openclaw gateway run';
+    } else {
+      text.innerHTML = '重启失败: ' + (d.error || 'unknown');
     }
   } catch(e) {
     text.innerHTML = '请求失败，请运行: ./openclaw gateway run';

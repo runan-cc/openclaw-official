@@ -463,6 +463,7 @@ class Handler(SimpleHTTPRequestHandler):
         import re
         try:
             with open("/proc/net/tcp") as f:
+                next(f)  # skip header line
                 for line in f:
                     parts = line.strip().split()
                     if len(parts) < 10:
